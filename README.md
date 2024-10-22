@@ -1,4 +1,5 @@
-# Flask Web App Tutorial
+
+conda activate findmyprizeFlask_env
 
 ## Setup & Installation
 
