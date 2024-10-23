@@ -11,7 +11,7 @@ import sqlite3
 
 geolocator = Nominatim(user_agent="my_user_agent")
 
-def run_scraper(city, country):
+def run_scraper(city, country, product, target_price):
     loc = geolocator.geocode(f"{city},{country}")
     my_long = loc.longitude
     my_lat = loc.latitude
@@ -48,7 +48,6 @@ def run_scraper(city, country):
         msg["From"] = sender_email
         msg["To"] = receiver_email
         msg["Subject"] = subject
-
         msg.attach(MIMEText(message, "plain"))
 
         server = smtplib.SMTP("smtp.gmail.com", 587)
@@ -63,12 +62,10 @@ def run_scraper(city, country):
         name: str
         target_price: float
 
+    # Replace the hardcoded PRODUCTS_AND_PRICES with user input
     PRODUCTS_AND_PRICES = [
-        Product("Crema d'Oro", 11.00),
-        Product("Hafermilch", 0.98),
-        Product("Red Bull", 0.99),
+        Product(product, float(target_price))
     ]
-
     init_db()
 
     results = []
