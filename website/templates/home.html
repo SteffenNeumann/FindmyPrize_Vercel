@@ -1,120 +1,74 @@
 {% extends "base.html" %}
-{% block title %}Home{% endblock %}
 {% block content %}
-<h1 align="center">Notes</h1>
-<ul class="list-group list-group-flush" id="notes">
-  {% for note in notes %}
-  <li class="list-group-item">
-    {{ note.data }}
-    <button type="button" class="close" onClick="deleteNote({{ note.id }})">
-      <span aria-hidden="true">×</span>
-    </button>
-  </li>
-  {% endfor %}
-</ul>
-<form method="POST">
-  <textarea name="note" id="note" class="form-control"></textarea>
-  <br />
-  <div align="center">
-    <button type="submit" class="btn btn-primary">Add Note</button>
-  </div>
-</form>
 
-<h1 align="center">Scraper</h1>
-<form id="scraperForm" method="POST">
-  <div class="form-group">
-      <label for="product">Product</label>
-      <input 
-          type="text" 
-          class="form-control" 
-          id="product" 
-          name="product" 
-          placeholder="Enter product name"
-      >
-  </div>
-  <div class="form-group">
-      <label for="price">Price</label>
-      <input 
-          type="number" 
-          class="form-control" 
-          id="price" 
-          name="price" 
-          placeholder="Enter target price"
-      >
-  </div>
-  <div class="form-group">
-      <label for="city">City</label>
-      <input 
-          type="text" 
-          class="form-control" 
-          id="city" 
-          name="city" 
-          placeholder="Enter city"
-      >
-  </div>
-  <div class="form-group">
-      <label for="country">Country</label>
-      <input 
-          type="text" 
-          class="form-control" 
-          id="country" 
-          name="country" 
-          placeholder="Enter country"
-      >
-  </div>
-  <br />
-  <button type="submit" class="btn btn-primary">Search</button>
-</form>
-<div id="results" class="results-container"></div>
+<!-- Search Form Section -->
+<div class="container mt-4">
+    <form method="POST">
+      <div class="form-group">
+          <label for="product">Product</label>
+          <input 
+              type="text" 
+              class="form-control" 
+              id="product" 
+              name="product" 
+              placeholder="Enter product name"
+          >
+      </div>
+      <div class="form-group">
+          <label for="price">Price</label>
+          <input 
+              type="number" 
+              class="form-control" 
+              id="price" 
+              name="price" 
+              placeholder="Enter target price"
+          >
+      </div>
+      <div class="form-group">
+          <label for="city">City</label>
+          <input 
+              type="text" 
+              class="form-control" 
+              id="city" 
+              name="city" 
+              placeholder="Enter city"
+          >
+      </div>
+      <div class="form-group">
+          <label for="country">Country</label>
+          <input 
+              type="text" 
+              class="form-control" 
+              id="country" 
+              name="country" 
+              placeholder="Enter country"
+          >
+      </div>
+      <br />
+      <button type="submit" class="btn btn-primary">Search</button>
+    </form>
+</div>
 
-<style>
-.results-container {
-    max-width: 800px;
-    margin: 20px auto;
-    font-family: Arial, sans-serif;
-}
+<!-- Results Display Section -->
+<div class="container mt-4">
+    <h3>Previous Deals</h3>
+    {% if deals %}
+        <div class="card-columns">
+        {% for deal in deals %}
+            <div class="card">
+                <div class="card-body">
+                    <h5 class="card-title">Deal #{{ deal.id }}</h5>
+                    <p class="card-text">{{ deal.data }}</p>
+                    <p class="text-muted small">{{ deal.date_created }}</p>
+                </div>
+            </div>
+        {% endfor %}
+        </div>
+    {% else %}
+        <p>No previous deals found</p>
+    {% endif %}
+</div>
 
-.deal-alert {
-    background: white;
-    border: 1px solid #ddd;
-    padding: 12px;
-    margin: 8px 0;
-    border-radius: 6px;
-}
-</style>
+<div id="results"></div>
 
-<script>
-document.getElementById('scraperForm').addEventListener('submit', async (e) => {
-    e.preventDefault();
-    const formData = new FormData(e.target);
-    const resultsDiv = document.getElementById('results');
-    resultsDiv.innerHTML = 'Searching...'; // Loading indicator
-    
-    try {
-        const response = await fetch('/', {
-            method: 'POST',
-            body: formData
-        });
-        const data = await response.json();
-        
-        if (data.error) {
-            resultsDiv.innerHTML = `<div class="deal-alert error">${data.error}</div>`;
-            return;
-        }
-        
-        if (data.results && data.results[0]) {
-            const dealsText = data.results[0];
-            const deals = dealsText.split('\n').filter(deal => deal.trim());
-            
-            resultsDiv.innerHTML = deals.map(deal => 
-                `<div class="deal-alert">${deal}</div>`
-            ).join('');
-        } else {
-            resultsDiv.innerHTML = '<div class="deal-alert">No results found</div>';
-        }
-    } catch (error) {
-        resultsDiv.innerHTML = '<div class="deal-alert error">An error occurred while fetching results</div>';
-        console.error('Error:', error);
-    }
-});
-</script>{% endblock %}
+{% endblock %}

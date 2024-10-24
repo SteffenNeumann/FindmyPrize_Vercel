@@ -23,8 +23,12 @@ def geocode_with_retry(address, max_attempts=5):
     return None
 
 @views.route('/', methods=['GET', 'POST'])
-@login_required
 def home():
+    saved_deals = ScraperResult.query.order_by(ScraperResult.id.desc()).all()
+    
+    if request.method == 'GET':
+        return render_template('home.html', user=current_user, deals=saved_deals)
+        
     if request.method == 'POST':
         city = request.form.get('city')
         country = request.form.get('country')
@@ -50,8 +54,6 @@ def home():
                     return jsonify({'error': f'Invalid location data for {location_string}'}), 400
             except GeocoderTimedOut:
                 return jsonify({'error': 'Geocoding service timed out'}), 503
-            
-    return render_template("home.html", user=current_user)
 @views.route('/delete-note', methods=['POST'])
 def delete_note():  
      note = json.loads(request.data) # this function expects a JSON from the INDEX.js file 
@@ -90,3 +92,12 @@ def handle_geocoding():
 def past_results():
     results = ScraperResult.query.order_by(ScraperResult.date.desc()).all()
     return jsonify([{'data': json.loads(result.data), 'date': result.date} for result in results])
+
+from flask import json
+
+@views.app_template_filter('from_json')
+def from_json(value):
+    try:
+        return json.loads(value) if value else {}
+    except json.JSONDecodeError:
+        return {}
