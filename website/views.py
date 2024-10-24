@@ -7,6 +7,7 @@ from geopy.exc import GeocoderTimedOut
 from geopy.geocoders import Nominatim
 import time
 import json
+from flask import redirect, url_for
 
 views = Blueprint('views', __name__)
 
@@ -100,3 +101,11 @@ def from_json(value):
         return json.loads(value) if value else {}
     except json.JSONDecodeError:
         return {}
+
+@views.route('/clear-deals', methods=['POST'])
+
+
+def clear_deals():
+    db.session.query(ScraperResult).delete()
+    db.session.commit()
+    return redirect(url_for('views.home'))

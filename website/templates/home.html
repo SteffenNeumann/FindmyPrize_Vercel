@@ -53,17 +53,27 @@
 <div class="container mt-4">
     <div id="results">
         {% if results %}
-        <div class="results-container">
-            {% for result in results %}
-                <div class="result-item">
-                    <!-- Add your result display structure here based on your data format -->
-                    <p>{{ result }}</p>
-                </div>
-            {% endfor %}
-        </div>
-        {% endif %}    </div>
+            <div class="results-container">
+                {% for result in results %}
+                    <div class="result-item">
+                        <p>{{ result }}</p>
+                    </div>
+                {% endfor %}
+            </div>
+        {% else %}
+            <div class="alert alert-info">
+                No deals found matching your search criteria
+            </div>
+        {% endif %}
+    </div>
 
-    <h3>Previous Deals</h3>
+    <div class="d-flex justify-content-between align-items-center">
+        <h3>Previous Deals</h3>
+        <form action="{{ url_for('views.clear_deals') }}" method="POST">
+            <button type="submit" class="btn btn-danger">Clear All Deals</button>
+        </form>
+    </div>
+    
     {% if deals %}
         <div class="card-columns">
         {% for deal in deals %}
@@ -77,6 +87,9 @@
         {% endfor %}
         </div>
     {% else %}
-        <p>No previous deals found</p>
+        <div class="alert alert-secondary">
+            No previous deals in database
+        </div>
     {% endif %}
-</div>{% endblock %}
+</div>
+{% endblock %}
