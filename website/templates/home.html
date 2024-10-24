@@ -21,7 +21,7 @@
 </form>
 
 <h1 align="center">Scraper</h1>
-<form method="POST">
+<form id="scraperForm" method="POST">
   <div class="form-group">
       <label for="product">Product</label>
       <input 
@@ -65,7 +65,7 @@
   <br />
   <button type="submit" class="btn btn-primary">Search</button>
 </form>
-  <div id="results" class="results-container"></div>
+<div id="results" class="results-container"></div>
 
 <style>
 .results-container {
@@ -84,9 +84,11 @@
 </style>
 
 <script>
-document.querySelector('form').addEventListener('submit', async (e) => {
+document.getElementById('scraperForm').addEventListener('submit', async (e) => {
     e.preventDefault();
     const formData = new FormData(e.target);
+    const resultsDiv = document.getElementById('results');
+    resultsDiv.innerHTML = 'Searching...'; // Loading indicator
     
     try {
         const response = await fetch('/', {
@@ -95,16 +97,23 @@ document.querySelector('form').addEventListener('submit', async (e) => {
         });
         const data = await response.json();
         
+        if (data.error) {
+            resultsDiv.innerHTML = `<div class="deal-alert error">${data.error}</div>`;
+            return;
+        }
+        
         if (data.results && data.results[0]) {
-            const resultsDiv = document.getElementById('results');
             const dealsText = data.results[0];
             const deals = dealsText.split('\n').filter(deal => deal.trim());
             
             resultsDiv.innerHTML = deals.map(deal => 
                 `<div class="deal-alert">${deal}</div>`
             ).join('');
+        } else {
+            resultsDiv.innerHTML = '<div class="deal-alert">No results found</div>';
         }
     } catch (error) {
+        resultsDiv.innerHTML = '<div class="deal-alert error">An error occurred while fetching results</div>';
         console.error('Error:', error);
     }
 });
