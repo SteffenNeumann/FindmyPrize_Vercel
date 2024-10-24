@@ -8,6 +8,9 @@ from geopy.geocoders import Nominatim
 import time
 import json
 from flask import redirect, url_for
+from io import StringIO
+import csv
+from flask import make_response
 
 views = Blueprint('views', __name__)
 
@@ -109,3 +112,23 @@ def clear_deals():
     db.session.query(ScraperResult).delete()
     db.session.commit()
     return redirect(url_for('views.home'))
+@views.route('/delete-deal/<int:deal_id>', methods=['POST'])
+def delete_deal(deal_id):
+    deal = ScraperResult.query.get_or_404(deal_id)
+    db.session.delete(deal)
+    db.session.commit()
+    return redirect(url_for('views.home'))
+
+@views.route('/export-deals')
+def export_deals():
+    deals = ScraperResult.query.all()
+    si = StringIO()
+    cw = csv.writer(si)
+    cw.writerow(['ID', 'Date', 'Data'])  # Headers
+    for deal in deals:
+        cw.writerow([deal.id, deal.date_created, deal.data])
+    
+    output = make_response(si.getvalue())
+    output.headers["Content-Disposition"] = "attachment; filename=deals_export.csv"
+    output.headers["Content-type"] = "text/csv"
+    return output

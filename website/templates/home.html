@@ -49,15 +49,29 @@
     </form>
 </div>
 
+
 <!-- Results Display Section -->
 <div class="container mt-4">
     <div id="results">
         {% if results %}
             <div class="results-container">
                 {% for result in results %}
-                    <div class="result-item">
-                        <p>{{ result }}</p>
-                    </div>
+                    {% for deal in result.split('\n') %}
+                        {% if deal %}
+                            <div class="card mb-2">
+                                <div class="card-body">
+                                    <div class="row align-items-center">
+                                        <div class="col-md-8">
+                                            {{ deal.replace('\u20ac', '€') }}
+                                        </div>
+                                        <div class="col-md-4 text-end">
+                                            <small class="text-muted">{{ moment().format('MMMM Do YYYY, h:mm:ss a') }}</small>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        {% endif %}
+                    {% endfor %}
                 {% endfor %}
             </div>
         {% else %}
@@ -66,20 +80,42 @@
             </div>
         {% endif %}
     </div>
-
-    <div class="d-flex justify-content-between align-items-center">
-        <h3>Previous Deals</h3>
-        <form action="{{ url_for('views.clear_deals') }}" method="POST">
-            <button type="submit" class="btn btn-danger">Clear All Deals</button>
+<div class="d-flex justify-content-between align-items-center mb-4">
+    <div>
+        <h3>Previous Deals <span class="badge bg-secondary">{{ deals|length }}</span></h3>
+    </div>
+    <div class="btn-group" role="group" aria-label="Deal management options">
+        <div class="btn-group" role="group">
+            <button class="btn btn-outline-secondary dropdown-toggle" type="button" id="sortDropdown" data-bs-toggle="dropdown" aria-expanded="false">
+                <i class="fas fa-sort"></i> Sort by
+            </button>
+            <ul class="dropdown-menu dropdown-menu-end">
+                <li><a class="dropdown-item" href="?sort=date"><i class="fas fa-calendar-alt me-2"></i>Date</a></li>
+                <li><a class="dropdown-item" href="?sort=price"><i class="fas fa-tag me-2"></i>Price</a></li>
+            </ul>
+        </div>
+        <a href="{{ url_for('views.export_deals') }}" class="btn btn-outline-success">
+            <i class="fas fa-file-export"></i> Export CSV
+        </a>
+        <form action="{{ url_for('views.clear_deals') }}" method="POST" class="d-inline">
+            <button type="submit" class="btn btn-outline-danger" onclick="return confirm('Are you sure you want to clear all deals?');">
+                <i class="fas fa-trash-alt"></i> Clear All
+            </button>
         </form>
     </div>
+</div>
     
     {% if deals %}
         <div class="card-columns">
         {% for deal in deals %}
             <div class="card">
                 <div class="card-body">
-                    <h5 class="card-title">Deal #{{ deal.id }}</h5>
+                    <div class="d-flex justify-content-between">
+                        <h5 class="card-title">Deal #{{ deal.id }}</h5>
+                        <form action="{{ url_for('views.delete_deal', deal_id=deal.id) }}" method="POST" class="d-inline">
+                            <button type="submit" class="btn btn-sm btn-outline-danger">×</button>
+                        </form>
+                    </div>
                     <p class="card-text">{{ deal.data }}</p>
                     <p class="text-muted small">{{ deal.date_created }}</p>
                 </div>
