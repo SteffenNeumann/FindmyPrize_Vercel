@@ -2,13 +2,15 @@ from flask import Flask
 from flask_sqlalchemy import SQLAlchemy
 from os import path
 from flask_login import LoginManager
-
+from flask_moment import Moment
 db = SQLAlchemy()
 DB_NAME = "database.db"
 
 
 def create_app():
     app = Flask(__name__)
+    
+    moment = Moment(app)
     app.config['SECRET_KEY'] = 'hjshjhdjah kjshkjdhjs'
     app.config['SQLALCHEMY_DATABASE_URI'] = f'sqlite:///{DB_NAME}'
     db.init_app(app)
@@ -33,7 +35,6 @@ def create_app():
         return User.query.get(int(id))
 
     return app
-
 
 def create_database(app):
     if not path.exists('website/' + DB_NAME):
