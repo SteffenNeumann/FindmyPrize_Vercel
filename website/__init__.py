@@ -3,14 +3,20 @@ from flask_sqlalchemy import SQLAlchemy
 from os import path
 from flask_login import LoginManager
 from flask_moment import Moment
+import re
+
 db = SQLAlchemy()
 DB_NAME = "database.db"
 
 
 def create_app():
     app = Flask(__name__)
-    
     moment = Moment(app)
+    # Add this custom filter
+    @app.template_filter('regex_replace')
+    def regex_replace(s, find, replace):
+        return re.sub(find, replace, s)
+    
     app.config['SECRET_KEY'] = 'hjshjhdjah kjshkjdhjs'
     app.config['SQLALCHEMY_DATABASE_URI'] = f'sqlite:///{DB_NAME}'
     db.init_app(app)

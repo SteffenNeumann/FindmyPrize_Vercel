@@ -48,7 +48,23 @@
       <button type="submit" class="btn btn-primary">Search</button>
     </form>
 </div>
+<!-- Add this right after your search form -->
+<div id="searchStatus" class="alert alert-info d-none mt-3">
+    <div class="d-flex align-items-center">
+        <div class="spinner-border spinner-border-sm me-2" role="status">
+            <span class="visually-hidden">Loading...</span>
+        </div>
+        Searching for deals...
+    </div>
+</div>
 
+<!-- Add this JavaScript at the bottom of your template -->
+<script>
+document.querySelector('form').addEventListener('submit', function(e) {
+    document.getElementById('searchStatus').classList.remove('d-none');
+    document.getElementById('results').innerHTML = '';
+});
+</script>
 
 <!-- Results Display Section -->
 <div class="container mt-4">
@@ -105,27 +121,53 @@
     </div>
 </div>
     
-    {% if deals %}
-        <div class="card-columns">
+{% if deals %}
+    <div class="row row-cols-1 row-cols-md-3 g-4">
         {% for deal in deals %}
-            <div class="card">
-                <div class="card-body">
-                    <div class="d-flex justify-content-between">
-                        <h5 class="card-title">Deal #{{ deal.id }}</h5>
-                        <form action="{{ url_for('views.delete_deal', deal_id=deal.id) }}" method="POST" class="d-inline">
-                            <button type="submit" class="btn btn-sm btn-outline-danger">×</button>
-                        </form>
+            <div class="col">
+                <div class="card h-100 shadow-sm">
+                    <div class="card-body">
+                        <div class="d-flex justify-content-between align-items-center mb-2">
+                            <h5 class="card-title mb-0">Deal #{{ deal.id }}</h5>
+                            <form action="{{ url_for('views.delete_deal', deal_id=deal.id) }}" method="POST" class="d-inline">
+                                <button type="submit" class="btn btn-sm btn-outline-danger rounded-circle">
+                                    <i class="fas fa-times"></i>
+                                </button>
+                            </form>
+                        </div>
+                        {% set deal_data = deal.data.strip('[]"').split('\\n') %}
+                        {% for item in deal_data %}
+                            {% if item.strip() %}
+                                {% set formatted_item = item|regex_replace('\\\\u20ac', '€')|regex_replace('Deal alert! ', '') %}
+                                <div class="deal-item mb-2 p-2 border-bottom">
+                                    <p class="card-text">
+                                        <i class="fas fa-store text-primary me-2"></i>
+                                        {{ formatted_item.split('!')[0] }}!
+                                        <br>
+                                        <span class="text-success fw-bold mt-1 d-block">
+                                            <i class="fas fa-tag me-1"></i>
+                                            Target price: {{ formatted_item.split('Target price: ')[1].strip() }}
+                                        </span>
+                                    </p>
+                                </div>
+                            {% endif %}
+                        {% endfor %}
+                        <div class="text-muted small mt-3">
+                            <i class="far fa-clock me-1"></i>
+                            {{ moment(deal.date_created).format('MMMM Do YYYY, h:mm:ss a') }}
+                        </div>
                     </div>
-                    <p class="card-text">{{ deal.data }}</p>
-                    <p class="text-muted small">{{ deal.date_created }}</p>
                 </div>
             </div>
         {% endfor %}
-        </div>
-    {% else %}
-        <div class="alert alert-secondary">
-            No previous deals in database
-        </div>
-    {% endif %}
-</div>
+    </div>
+{% else %}
+    <div class="alert alert-secondary">
+        <i class="fas fa-info-circle me-2"></i>
+        No previous deals in database
+    </div>
+{% endif %}
+
 {% endblock %}
+
+
