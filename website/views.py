@@ -26,9 +26,6 @@ def geocode_with_retry(address, max_attempts=5):
 def home():
     saved_deals = ScraperResult.query.order_by(ScraperResult.id.desc()).all()
     
-    if request.method == 'GET':
-        return render_template('home.html', user=current_user, deals=saved_deals)
-        
     if request.method == 'POST':
         city = request.form.get('city')
         country = request.form.get('country')
@@ -49,11 +46,13 @@ def home():
                     db.session.add(scraper_result)
                     db.session.commit()
                     
-                    return jsonify({'results': results})
+                    return render_template('home.html', user=current_user, deals=saved_deals, results=results)
                 else:
-                    return jsonify({'error': f'Invalid location data for {location_string}'}), 400
+                    flash(f'Invalid location data for {location_string}', category='error')
             except GeocoderTimedOut:
-                return jsonify({'error': 'Geocoding service timed out'}), 503
+                flash('Geocoding service timed out', category='error')
+    
+    return render_template('home.html', user=current_user, deals=saved_deals)
 @views.route('/delete-note', methods=['POST'])
 def delete_note():  
      note = json.loads(request.data) # this function expects a JSON from the INDEX.js file 

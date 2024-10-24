@@ -51,6 +51,18 @@
 
 <!-- Results Display Section -->
 <div class="container mt-4">
+    <div id="results">
+        {% if results %}
+        <div class="results-container">
+            {% for result in results %}
+                <div class="result-item">
+                    <!-- Add your result display structure here based on your data format -->
+                    <p>{{ result }}</p>
+                </div>
+            {% endfor %}
+        </div>
+        {% endif %}    </div>
+
     <h3>Previous Deals</h3>
     {% if deals %}
         <div class="card-columns">
@@ -67,8 +79,4 @@
     {% else %}
         <p>No previous deals found</p>
     {% endif %}
-</div>
-
-<div id="results"></div>
-
-{% endblock %}
+</div>{% endblock %}
