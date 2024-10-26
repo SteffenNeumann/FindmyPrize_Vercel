@@ -11,6 +11,7 @@ from flask import redirect, url_for
 from io import StringIO
 import csv
 from flask import make_response
+from flask import json
 
 views = Blueprint('views', __name__)
 
@@ -96,7 +97,6 @@ def past_results():
     results = ScraperResult.query.order_by(ScraperResult.date.desc()).all()
     return jsonify([{'data': json.loads(result.data), 'date': result.date} for result in results])
 
-from flask import json
 
 @views.app_template_filter('from_json')
 def from_json(value):
