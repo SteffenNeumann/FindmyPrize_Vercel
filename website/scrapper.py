@@ -11,13 +11,14 @@ import sqlite3
 
 geolocator = Nominatim(user_agent="my_user_agent")
 
-def run_scraper(city, country, product, target_price):
+def run_scraper(city, country, product, target_price, should_send_email):
     loc = geolocator.geocode(f"{city},{country}")
     my_long = loc.longitude
     my_lat = loc.latitude
 
+    # Make sure EMAIL_ADDRESS and EMAIL_PASSWORD are loaded from .env
     load_dotenv()
-
+    
     EMAIL_ADDRESS = os.getenv("EMAIL_ADDRESS")
     EMAIL_PASSWORD = os.getenv("EMAIL_PASSWORD")
     RECIPIENT_EMAIL = os.getenv("RECIPIENT_EMAIL")
@@ -39,23 +40,24 @@ def run_scraper(city, country, product, target_price):
         conn.commit()
         conn.close()
 
-    def send_email(subject, message):
-        sender_email = EMAIL_ADDRESS
-        sender_password = EMAIL_PASSWORD
-        receiver_email = RECIPIENT_EMAIL
+    def send_email(subject, message, should_send_email):
+        if should_send_email:  # Remove the default False parameter and use the one passed from run_scraper
+            sender_email = EMAIL_ADDRESS
+            sender_password = EMAIL_PASSWORD
+            receiver_email = RECIPIENT_EMAIL
 
-        msg = MIMEMultipart()
-        msg["From"] = sender_email
-        msg["To"] = receiver_email
-        msg["Subject"] = subject
-        msg.attach(MIMEText(message, "plain"))
+            msg = MIMEMultipart()
+            msg["From"] = sender_email
+            msg["To"] = receiver_email
+            msg["Subject"] = subject
+            msg.attach(MIMEText(message, "plain"))
 
-        server = smtplib.SMTP("smtp.gmail.com", 587)
-        server.starttls()
-        server.login(sender_email, sender_password)
-        text = msg.as_string()
-        server.sendmail(sender_email, receiver_email, text)
-        server.quit()
+            server = smtplib.SMTP("smtp.gmail.com", 587)
+            server.starttls()
+            server.login(sender_email, sender_password)
+            text = msg.as_string()
+            server.sendmail(sender_email, receiver_email, text)
+            server.quit()
 
     @dataclass
     class Product:
@@ -115,7 +117,7 @@ def run_scraper(city, country, product, target_price):
                                         product_name = "Unknown Product"
 
                                     message = f"Deal alert! {store} offers {product_name} for {price_text}! (Target price: €{target_price:.2f})"
-                                    send_email(subject, message)
+                                    send_email(subject, message, should_send_email)
                                     log_deal(product_name, store, price_value, target_price)
                                     output += message + "\n"
                             except ValueError:

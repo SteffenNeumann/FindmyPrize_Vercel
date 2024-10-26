@@ -44,7 +44,8 @@ def home():
             try:
                 loc = geolocator.geocode(location_string)
                 if loc and hasattr(loc, 'longitude') and hasattr(loc, 'latitude'):
-                    results = run_scraper(city, country, product, float(price))
+                    email_notification = request.form.get('emailNotification') == 'on'
+                    results = run_scraper(city, country, product, float(price), email_notification)
                     
                     # Store results in database
                     scraper_result = ScraperResult(data=json.dumps(results))
@@ -72,21 +73,38 @@ def delete_note():
 @login_required
 def handle_geocoding():
     address = request.form.get('address')
+    product = request.form.get('product')
+    target_price = request.form.get('target_price')
+    email_notification = request.form.get('emailNotification') == 'on'
+    
     if not address:
         return jsonify({'error': 'Address is required'}), 400
 
     location = geocode_with_retry(address)
     if location:
+        city = location.address.split(',')[0]  # Extract city from geocoded address
+        country = location.address.split(',')[-1]  # Extract country from geocoded address
+        
+        scraper_results = run_scraper(
+            city=city,
+            country=country,
+            product=product,
+            target_price=float(target_price),
+            should_send_email=email_notification
+        )
+        
         scraper_result = ScraperResult(
             data=f"Geocoded: {address} to {location.latitude}, {location.longitude}",
             user_id=current_user.id
         )
         db.session.add(scraper_result)
         db.session.commit()
+        
         return jsonify({
             'latitude': location.latitude,
             'longitude': location.longitude,
-            'address': location.address
+            'address': location.address,
+            'scraper_results': scraper_results
         })
     else:
         return jsonify({'error': 'Geocoding failed'}), 500
