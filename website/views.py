@@ -35,7 +35,7 @@ def home():
         city = request.form.get('city')
         country = request.form.get('country')
         product = request.form.get('product')
-        price = request.form.get('price')
+        price = request.form.get('price').replace(',', '.')
         
         if city and country and product and price:
             location_string = f"{city}, {country}"
