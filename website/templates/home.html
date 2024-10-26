@@ -3,211 +3,124 @@
 
 <!-- Search Form Section -->
 <div class="container mt-4">
+    <h2><i class="fas fa-search"></i> Find Deals</h2>
     <form method="POST">
-      <div class="form-group">
-          <label for="product">Product</label>
-          <input 
-              type="text" 
-              class="form-control" 
-              id="product" 
-              name="product" 
-              placeholder="Enter product name"
-          >
-      </div>
-      <div class="form-group">
-          <label for="price">Price</label>
-          <input 
-              type="text" 
-              class="form-control" 
-              id="price" 
-              name="price" 
-              placeholder="Enter target price (e.g. 1,99)"
-          >
-      </div>
-      <div class="form-group">
-          <label for="city">City</label>
-          <input 
-              type="text" 
-              class="form-control" 
-              id="city" 
-              name="city" 
-              placeholder="Enter city"
-          >
-      </div>
-      <div class="form-group">
-          <label for="country">Country</label>
-          <input 
-              type="text" 
-              class="form-control" 
-              id="country" 
-              name="country" 
-              placeholder="Enter country"
-          >
-      </div>
-      <!-- Add this inside the form, before the submit button -->
-<div id="sendmail" class="form-group">
-    <div class="form-check">
-        <input 
-            type="checkbox" 
-            class="form-check-input" 
-            id="emailNotification" 
-            name="emailNotification"
-            checked
-        >
-        <label class="form-check-label" for="emailNotification">
-            <i class="fas fa-envelope me-2"></i>Receive email notifications for deals
-        </label>
-    </div>
-</div>
+        <div class="row">
+            <div class="col-md-6">
+                <div class="form-group">
+                    <label for="product">Product</label>
+                    <input type="text" class="form-control" id="product" name="product" required>
+                </div>
+                <div class="form-group">
+                    <label for="price">Target Price</label>
+                    <div class="input-group">
+                        <span class="input-group-text">€</span>
+                        <input type="text" class="form-control" id="price" name="price" placeholder="1,99" required>
+                    </div>
+                </div>
+            </div>
+            <div class="col-md-6">
+                <div class="form-group">
+                    <label for="city">City</label>
+                    <input type="text" class="form-control" id="city" name="city" required>
+                </div>
+                <div class="form-group">
+                    <label for="country">Country</label>
+                    <input type="text" class="form-control" id="country" name="country" required>
+                </div>
+            </div>
+        </div>
+        
+        <div class="form-group mt-3">
+            <div class="form-check">
+                <input type="checkbox" class="form-check-input" id="emailNotification" name="emailNotification" checked>
+                <label class="form-check-label" for="emailNotification">
+                    <i class="fas fa-envelope me-2"></i>Receive email notifications
+                </label>
+            </div>
+        </div>
 
-      <br />
-      <button type="submit" class="btn btn-primary">Search</button>
+        <button type="submit" class="btn btn-primary mt-3">
+            <i class="fas fa-search me-2"></i>Search Deals
+        </button>
     </form>
 </div>
-<div id="searchStatus" class="alert alert-info d-none mt-3">
-    <div class="d-flex align-items-center justify-content-center">
-        <div style="margin-right:16px" class="spinner-border spinner-border-sm" role="status">
-            <span class="visually-hidden"></span>
-        </div>
-        Searching for deals...
-    </div>
-</div>
-<script>
-document.querySelector('form').addEventListener('submit', function(e) {
-    // Show spinner when search starts
-    document.getElementById('searchStatus').classList.remove('d-none');
-    document.getElementById('searchStatus').innerHTML = `
-        <div class="d-flex align-items-center justify-content-center">
-            <div style="margin-right:16px" class="spinner-border spinner-border-sm" role="status">
-                <span class="visually-hidden"></span>
-            </div>
-            Searching for deals...
-        </div>
-    `;
-});
 
-// Check results after page loads
-document.addEventListener('DOMContentLoaded', function() {
-    const resultsContainer = document.querySelector('.results-container');
-    const searchStatus = document.getElementById('searchStatus');
-    
-    // Only show status if a search was performed
-    if (resultsContainer) {
-        if (resultsContainer.children.length === 0) {
-            searchStatus.classList.remove('d-none');
-            searchStatus.innerHTML = '<div class="text-center">No deals found</div>';
-        }
-    } else {
-        searchStatus.classList.add('d-none');
-    }
-});
-</script><!-- Results Display Section -->
-<div class="container mt-4">
-    <div id="results">
-        {% if results %}
-            <div class="results-container">
-                {% if results|length == 0 %}
-                    <div class="alert alert-info">
-                        <i class="fas fa-info-circle me-2"></i>
-                        No deals found matching your search criteria
-                    </div>
-                {% else %}
-                    {% for result in results %}
-                        {% for deal in result.split('\n') %}
-                            {% if deal %}
-                                <div class="card mb-2">
-                                    <div class="card-body">
-                                        <div class="row align-items-center">
-                                            <div class="col-md-8">
-                                                {{ deal.replace('\u20ac', '€') }}
-                                            </div>
-                                            <div class="col-md-4 text-end">
-                                                <small class="text-muted">{{ moment().format('MMMM Do YYYY, h:mm:ss a') }}</small>
-                                            </div>
-                                        </div>
-                                    </div>
-                                </div>
-                            {% endif %}
-                        {% endfor %}
-                    {% endfor %}
-                {% endif %}
-            </div>
-        {% endif %}    </div>
-<div class="d-flex justify-content-between align-items-center mb-4">
-    <div>
-            <h3>Previous Deals <span class="badge bg-secondary">
-                {{ deals|length }}
-            </span></h3>
-        </div>
-    <div class="btn-group" role="group" aria-label="Deal management options">
-        <div class="btn-group" role="group">
-            <button class="btn btn-outline-secondary dropdown-toggle" type="button" id="sortDropdown" data-bs-toggle="dropdown" aria-expanded="false">
-                <i class="fas fa-sort"></i> Sort by
-            </button>
-            <ul class="dropdown-menu dropdown-menu-end">
-                <li><a class="dropdown-item" href="?sort=date"><i class="fas fa-calendar-alt me-2"></i>Date</a></li>
-                <li><a class="dropdown-item" href="?sort=price"><i class="fas fa-tag me-2"></i>Price</a></li>
-            </ul>
-        </div>
-        <a href="{{ url_for('views.export_deals') }}" class="btn btn-outline-success">
-            <i class="fas fa-file-export"></i> Export CSV
-        </a>
-        <form action="{{ url_for('views.clear_deals') }}" method="POST" class="d-inline">
-            <button type="submit" class="btn btn-outline-danger" onclick="return confirm('Are you sure you want to clear all deals?');">
-                <i class="fas fa-trash-alt"></i> Clear All
-            </button>
-        </form>
-    </div>
-</div>
-    
-{% if deals %}
-    <div class="row row-cols-1 row-cols-md-3 g-4">
-        {% for deal in deals %}
-            {% set deal_data = deal.data.strip('[]"').split('\\n') %}
-            {% if deal_data|join('')|trim() %}
-                <div class="col">
+<!-- Results Section -->
+<div class="container mt-5">
+    <h2><i class="fas fa-tags"></i> Your Deals</h2>
+    {% if deals %}
+        <div class="row">
+            {% for deal in deals %}
+                <div class="col-md-4 mb-4">
                     <div class="card h-100 shadow-sm">
+                        <div class="card-header d-flex justify-content-between align-items-center">
+                            <span><i class="fas fa-shopping-cart"></i> {{ deal.product }}</span>
+                            <form action="{{ url_for('views.delete_deal') }}" method="POST" class="d-inline">
+                                <input type="hidden" name="deal_id" value="{{ deal.id }}">
+                                <button type="submit" class="btn btn-sm btn-outline-danger" 
+                                        onclick="return confirm('Delete this deal?')">
+                                    <i class="fas fa-trash"></i>
+                                </button>
+                            </form>
+                        </div>
                         <div class="card-body">
-                            <div class="d-flex justify-content-between align-items-center mb-2">
-                                <h5 class="card-title mb-0">Deal #{{ deal.id }}</h5>
-                                <form action="{{ url_for('views.delete_deal', deal_id=deal.id) }}" method="POST" class="d-inline">
-                                    <button type="submit" class="btn btn-sm btn-outline-danger rounded-circle">
-                                        <i class="fas fa-times"></i>
-                                    </button>
-                                </form>
-                            </div>
-                            {% for item in deal_data %}
-                                {% if item.strip() %}
-                                    {% set formatted_item = item|regex_replace('\\\\u20ac', '€')|regex_replace('Deal alert! ', '') %}
-                                    <div class="deal-item mb-2 p-2 border-bottom">
-                                        <p class="card-text">
-                                            <i class="fas fa-store text-primary me-2"></i>
-                                            {{ formatted_item.split('!')[0] }}!
-                                            <br>
-                                            <span class="text-success fw-bold mt-1 d-block">
-                                                <i class="fas fa-tag me-1"></i>
-                                                Target price: {{ formatted_item.split('Target price: ')[1].strip() }}
-                                            </span>
-                                        </p>
-                                    </div>
-                                {% endif %}
-                            {% endfor %}
-                            <div class="text-muted small mt-3">
-                                <i class="far fa-clock me-1"></i>
-                                {{ moment(deal.date_created).format('MMMM Do YYYY, h:mm:ss a') }}
-                            </div>
+                            <p class="card-text">
+                                <strong><i class="fas fa-map-marker-alt"></i> Location:</strong> 
+                                {{ deal.city }}, {{ deal.country }}
+                            </p>
+                            <p class="card-text">
+                                <strong><i class="fas fa-tag"></i> Target Price:</strong> 
+                                €{{ deal.target_price }}
+                            </p>
+                            <p class="card-text">
+                                <small class="text-muted">
+                                    <i class="far fa-clock"></i> 
+                                    {{ moment(deal.date_created).fromNow() }}
+                                </small>
+                            </p>
                         </div>
                     </div>
                 </div>
-            {% endif %}
-        {% endfor %}
-    </div>
-{% else %}
-    <div class="alert alert-secondary">
-        <i class="fas fa-info-circle me-2"></i>
-        No previous deals in database
-    </div>
-{% endif %}
+            {% endfor %}
+        </div>
+    {% else %}
+        <div class="alert alert-info">
+            <i class="fas fa-info-circle me-2"></i>
+            You haven't saved any deals yet. Start searching above!
+        </div>
+    {% endif %}
+</div>
+
 {% endblock %}
 
-
+<!-- Add this after the deals section -->
+<div class="container mt-4">
+    <h3><i class="fas fa-chart-line"></i> Your Deal Statistics</h3>
+    <div class="row">
+        <div class="col-md-4">
+            <div class="card text-center">
+                <div class="card-body">‚
+                    <h5>Total Deals Found</h5>
+                    <h2>{{ deals|length }}</h2>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-4">
+            <div class="card text-center">
+                <div class="card-body">
+                    <h5>Average Price</h5>
+                    <h2>€{{ average_price|round(2) }}</h2>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-4">
+            <div class="card text-center">
+                <div class="card-body">
+                    <h5>Most Searched Product</h5>
+                    <h2>{{ most_searched_product }}</h2>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>

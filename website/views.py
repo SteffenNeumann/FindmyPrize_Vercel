@@ -28,8 +28,10 @@ def geocode_with_retry(address, max_attempts=5):
     return None
 
 @views.route('/', methods=['GET', 'POST'])
+@login_required
 def home():
-    saved_deals = ScraperResult.query.order_by(ScraperResult.id.desc()).all()
+    # Only get deals for the logged-in user
+    saved_deals = ScraperResult.query.filter_by(user_id=current_user.id).order_by(ScraperResult.id.desc()).all()
     
     if request.method == 'POST':
         city = request.form.get('city')
@@ -48,7 +50,15 @@ def home():
                     results = run_scraper(city, country, product, float(price), email_notification)
                     
                     # Store results in database
-                    scraper_result = ScraperResult(data=json.dumps(results))
+                    scraper_result = ScraperResult(
+                        data=json.dumps(results),
+                        user_id=current_user.id,
+                        product=product,
+                        target_price=float(price),
+                        city=city,
+                        country=country,
+                        email_notification=email_notification
+                        )
                     db.session.add(scraper_result)
                     db.session.commit()
                     
@@ -124,17 +134,23 @@ def from_json(value):
         return {}
 
 @views.route('/clear-deals', methods=['POST'])
-
-
+@login_required
 def clear_deals():
-    db.session.query(ScraperResult).delete()
+    ScraperResult.query.filter_by(user_id=current_user.id).delete()
     db.session.commit()
+    flash('All deals cleared successfully!', category='success')
     return redirect(url_for('views.home'))
-@views.route('/delete-deal/<int:deal_id>', methods=['POST'])
-def delete_deal(deal_id):
-    deal = ScraperResult.query.get_or_404(deal_id)
-    db.session.delete(deal)
-    db.session.commit()
+@views.route('/delete-deal', methods=['POST'])
+@login_required
+def delete_deal():
+    deal_id = request.form.get('deal_id')
+    deal = ScraperResult.query.get(deal_id)
+    
+    if deal and deal.user_id == current_user.id:
+        db.session.delete(deal)
+        db.session.commit()
+        flash('Deal deleted successfully!', 'success')
+    
     return redirect(url_for('views.home'))
 
 @views.route('/export-deals')
