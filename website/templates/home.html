@@ -88,7 +88,8 @@ document.addEventListener('DOMContentLoaded', function() {
         searchStatus.classList.add('d-none');
     }
 });
-</script><!-- Results Display Section -->
+</script>
+<!-- Results Display Section -->
 <div class="container mt-4">
     <div id="results">
         {% if results %}
@@ -99,29 +100,55 @@ document.addEventListener('DOMContentLoaded', function() {
                         No deals found matching your search criteria
                     </div>
                 {% else %}
-                    {% for result in results %}
-                        {% for deal in result.split('\n') %}
-                            {% if deal %}
-                                <div class="card mb-2">
-                                    <div class="card-body">
-                                        <div class="row align-items-center">
-                                            <div class="col-md-8">
-                                                {{ deal.replace('\u20ac', '€') }}
+                    <div class="row">
+                        {% for result in results %}
+                            {% for deal in result.split('\n') %}
+                                {% if deal %}
+                                    <div class="col-md-4 mb-3">
+                                        <div class="card h-100 shadow-sm hover-effect">
+                                            <div class="card-header bg-primary text-white">
+                                                <i class="fas fa-tag me-2"></i>Deal Found
                                             </div>
-                                            <div class="col-md-4 text-end">
-                                                <small class="text-muted">{{ moment().format('MMMM Do YYYY, h:mm:ss a') }}</small>
+                                            <div class="card-body">
+                                                <h5 class="card-title">{{ deal.replace('\u20ac', '€') }}</h5>
+                                                <p class="card-text">
+                                                    <small class="text-muted">
+                                                        <i class="far fa-clock me-1"></i>
+                                                        {{ moment().format('MMMM Do YYYY, h:mm:ss a') }}
+                                                    </small>
+                                                </p>
                                             </div>
                                         </div>
                                     </div>
-                                </div>
-                            {% endif %}
+                                {% endif %}
+                            {% endfor %}
                         {% endfor %}
-                    {% endfor %}
+                    </div>
                 {% endif %}
             </div>
-        {% endif %}    </div>
-<!-- Results Section -->
+        {% endif %}
+    </div>
+</div>
 
+<style>
+.hover-effect {
+    transition: transform 0.2s ease-in-out;
+}
+
+.hover-effect:hover {
+    transform: translateY(-5px);
+    box-shadow: 0 4px 15px rgba(0,0,0,0.1) !important;
+}
+
+.card-header {
+    border-bottom: none;
+}
+
+.card {
+    border-radius: 10px;
+    border: none;
+}
+</style>
 <div class="container mt-5">
 <h2><i class="fas fa-history"></i> Previous Deals <span class="badge bg-secondary">
     {{ deals|selectattr('data', 'string')|selectattr('data.strip()', 'string')|list|length }}

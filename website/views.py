@@ -122,7 +122,7 @@ def handle_geocoding():
 
 @views.route('/past-results')
 def past_results():
-    results = ScraperResult.query.order_by(ScraperResult.date.desc()).all()
+    results = ScraperResult.query.order_by(ScraperResult.price.asc()).all()
     return jsonify([{'data': json.loads(result.data), 'date': result.date} for result in results])
 
 

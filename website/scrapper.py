@@ -22,6 +22,7 @@ def run_scraper(city, country, product, target_price, should_send_email, user_id
     RECIPIENT_EMAIL = os.getenv("RECIPIENT_EMAIL")
 
     def send_email(subject, message, should_send_email):
+        
         if should_send_email:
             sender_email = EMAIL_ADDRESS
             sender_password = EMAIL_PASSWORD
@@ -41,6 +42,23 @@ def run_scraper(city, country, product, target_price, should_send_email, user_id
             server.quit()
 
     def log_deal(store, price, product_name, data):
+        """
+        Logs a deal found during the web scraping process.
+        
+        Args:
+            store (str): The name of the store where the product was found.
+            price (float): The price of the product.
+            product_name (str): The name of the product.
+            target_price (float): The target price for the product.
+            city (str): The city where the product was found.
+            country (str): The country where the product was found.
+            should_send_email (bool): Whether an email notification should be sent.
+            user_id (int, optional): The ID of the user who requested the scraping.
+            data (dict): Additional data related to the scraping process.
+        
+        Returns:
+            None
+        """
         scraper_result = ScraperResult(
             store=store,
             price=price,
