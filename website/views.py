@@ -49,18 +49,22 @@ def home():
                     email_notification = request.form.get('emailNotification') == 'on'
                     results = run_scraper(city, country, product, float(price), email_notification)
                     
-                    # Store results in database
-                    scraper_result = ScraperResult(
-                        data=json.dumps(results),
-                        user_id=current_user.id,
-                        product=product,
-                        target_price=float(price),
-                        city=city,
-                        country=country,
-                        email_notification=email_notification
-                        )
-                    db.session.add(scraper_result)
-                    db.session.commit()
+                    # Store results in database only if deals were found
+                    if results:
+                        scraper_result = ScraperResult(
+                            data=json.dumps(results),
+                            user_id=current_user.id,
+                            product=product,
+                            target_price=float(price),
+                            city=city,
+                            country=country,
+                            email_notification=email_notification
+                            )
+                        db.session.add(scraper_result)
+                        db.session.commit()
+                    else:
+                        flash('No deals found matching your criteria', category='error')
+                        return redirect(url_for('views.home'))
                     
                     return render_template('home.html', user=current_user, deals=saved_deals, results=results)
                 else:
