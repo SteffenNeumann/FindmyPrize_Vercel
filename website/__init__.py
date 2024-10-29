@@ -1,4 +1,5 @@
 from flask import Flask
+from flask_apscheduler import APScheduler
 from flask_sqlalchemy import SQLAlchemy
 from os import path
 from flask_login import LoginManager
@@ -7,7 +8,7 @@ import re
 
 db = SQLAlchemy()
 DB_NAME = "database.db"
-
+scheduler = APScheduler()
 
 def create_app():
     app = Flask(__name__)
@@ -39,6 +40,9 @@ def create_app():
     @login_manager.user_loader
     def load_user(id):
         return User.query.get(int(id))
+    
+    scheduler.init_app(app)
+    scheduler.start()
 
     return app
 

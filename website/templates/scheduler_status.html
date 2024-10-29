@@ -1,0 +1,96 @@
+{% extends "base.html" %}
+{% block content %}
+<div class="container">
+    <h2>Active Schedules</h2>
+    <div class="table-responsive">
+        <table class="table">
+            <thead>
+                <tr>
+                    <th>Product</th>
+                    <th>Interval</th>
+                    <th>Target Price</th>
+                    <th>Location</th>
+                    <th>Last Run</th>
+                    <th>Next Run</th>
+                    <th>Status</th>
+                    <th>Notifications</th>
+                    <th>Actions</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for schedule in scheduler_info %}
+                    {% if schedule.active %}
+                    <tr>
+                        <td>{{ schedule.product }}</td>
+                        <td>{{ schedule.interval }}</td>
+                        <td>${{ schedule.target_price }}</td>
+                        <td>{{ schedule.location }}</td>
+                        <td class="last-run" data-timestamp="{{ schedule.last_run }}">
+                            {{ schedule.last_run|default('Not run yet', true) }}
+                        </td>
+                        <td class="next-run" data-timestamp="{{ schedule.next_run }}">
+                            {{ schedule.next_run|default('N/A', true) }}
+                        </td>
+                        <td>{{ 'Active' if schedule.active else 'Inactive' }}</td>
+                        <td>{{ schedule.notifications }}</td>
+                        <td>
+                            <form action="{{ url_for('views.cancel_schedule', schedule_id=schedule.id) }}" method="POST">
+                                <button type="submit" class="btn btn-danger btn-sm">Cancel</button>
+                            </form>
+                        </td>
+                    </tr>
+                    {% endif %}
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+</div>
+<div class="container mt-4">
+    <h3>Create New Schedule</h3>
+    <form action="{{ url_for('views.create_schedule') }}" method="POST">
+        <div class="form-group">
+            <input type="text" name="product" class="form-control" placeholder="Product to track" required>
+        </div>
+        <div class="form-group">
+            <input type="number" name="interval" class="form-control" placeholder="Check interval (minutes)" required>
+        </div>
+        <div class="form-group">
+            <input type="number" step="0.01" name="target_price" class="form-control" placeholder="Target price" required>
+        </div>
+        <div class="form-group">
+            <input type="text" name="city" class="form-control" placeholder="City" required>
+        </div>
+        <div class="form-group">
+            <input type="text" name="country" class="form-control" placeholder="Country" required>
+        </div>
+        <div class="form-check">
+            <input type="checkbox" name="email_notification" class="form-check-input" id="email_notification">
+            <label class="form-check-label" for="email_notification">Email notifications</label>
+        </div>
+        <button type="submit" class="btn btn-primary">Create Schedule</button>
+    </form>
+</div>
+
+<script>
+    function updateTimes() {
+        document.querySelectorAll('.last-run, .next-run').forEach(element => {
+            const timestamp = element.getAttribute('data-timestamp');
+            if (timestamp) {
+                const date = new Date(timestamp);
+                element.textContent = date.toLocaleString();
+            }
+        });
+    }
+
+    // Update times every second
+    setInterval(updateTimes, 1000);
+    
+    // Initial update
+    updateTimes();
+
+    // Page refresh every 30 seconds
+    setTimeout(function(){
+        window.location.reload();
+    }, 30000);
+</script>
+{% endblock %}

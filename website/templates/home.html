@@ -45,6 +45,39 @@
             </div>
         </div>
 
+        <!-- Add this after the email notification checkbox, inside the form -->
+        <div class="form-group mt-3">
+            <label for="scheduleType"><i class="fas fa-clock me-2"></i>Schedule Search</label>
+            <select class="form-control" id="scheduleType" name="scheduleType">
+                <option value="none">No Schedule</option>
+                <option value="hourly">Every Hour</option>
+                <option value="daily">Daily</option>
+                <option value="weekly">Weekly</option>
+            </select>
+        </div>
+
+        <div id="scheduleDetails" class="mt-3" style="display: none;">
+            <!-- Daily schedule options -->
+            <div id="dailyOptions" class="form-group">
+                <label for="dailyTime">Time of day</label>
+                <input type="time" class="form-control" id="dailyTime" name="dailyTime">
+            </div>
+
+            <!-- Weekly schedule options -->
+            <div id="weeklyOptions" class="form-group" style="display: none;">
+                <label>Days of week</label>
+                <div class="btn-group d-flex flex-wrap" role="group">
+                    {% for day in ['Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat', 'Sun'] %}
+                    <div class="form-check m-2">
+                        <input type="checkbox" class="form-check-input" id="day{{ day }}" name="weekDays" value="{{ day }}">
+                        <label class="form-check-label" for="day{{ day }}">{{ day }}</label>
+                    </div>
+                    {% endfor %}
+                </div>
+                <input type="time" class="form-control mt-2" id="weeklyTime" name="weeklyTime">
+            </div>
+        </div>
+
         <button type="submit" class="btn btn-primary mt-3">
             <i class="fas fa-search me-2"></i>Search Deals
         </button>
@@ -184,61 +217,4 @@ document.addEventListener('DOMContentLoaded', function() {
                 <div class="card-header d-flex justify-content-between align-items-center">
                     <span><i class="fas fa-shopping-cart"></i> Deal #{{ deal.id }}</span>
                     <form action="{{ url_for('views.delete_deal') }}" method="POST" class="d-inline">
-                        <input type="hidden" name="deal_id" value="{{ deal.id }}">
-                        <button type="submit" class="btn btn-sm btn-outline-danger" 
-                                onclick="return confirm('Delete this deal?')">
-                            <i class="fas fa-trash"></i>
-                        </button>
-                    </form>
-                </div>
-                <div class="card-body">
-                    {% for item in deal_data %}
-                        {% if item.strip() %}
-                            {% set formatted_item = item|regex_replace('\\\\u20ac', '€')|regex_replace('Deal alert! ', '') %}
-                            <p class="card-text">
-                                <strong><i class="fas fa-store"></i> Store:</strong> 
-                                {{ formatted_item.split('!')[0] }}!
-                            </p>
-                            <p class="card-text">
-                                <strong><i class="fas fa-tag"></i> Price:</strong> 
-                                {{ formatted_item.split('Target price: ')[1].strip() }}
-                            </p>
-                        {% endif %}
-                    {% endfor %}
-                    <p class="card-text">
-                        <small class="text-muted">
-                            <i class="far fa-clock"></i> 
-                            {{ moment(deal.date_created).fromNow() }}
-                        </small>
-                    </p>
-                </div>
-            </div>
-        </div>
-    {% endif %}
-    {% endfor %}
-</div>
-{% else %}
-<div class="alert alert-info">
-    <i class="fas fa-info-circle me-2"></i>
-    No previous deals in database
-</div>
-{% endif %}
-
-
-<script>
-    document.addEventListener('DOMContentLoaded', function() {
-        {% if saved_search %}
-            // Populate form fields with saved search data
-            document.getElementById('product').value = "{{ saved_search.product }}";
-            document.getElementById('price').value = "{{ saved_search.target_price }}";
-            document.getElementById('city').value = "{{ saved_search.city }}";
-            document.getElementById('country').value = "{{ saved_search.country }}";
-            document.getElementById('emailNotification').checked = {{ 'true' if saved_search.email_notification else 'false' }};
-        {% endif %}
-    });
-    </script>
-    
-
-
-{% endblock %}
-
+                        <input type="hidde

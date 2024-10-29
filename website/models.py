@@ -58,3 +58,7 @@ class SavedSearch(db.Model):
     email_notification = db.Column(db.Boolean, default=True)
     date_created = db.Column(db.DateTime, default=func.now())
     user = db.relationship('User')
+    schedule_type = db.Column(db.String(20))
+    schedule_time = db.Column(db.Time)
+    schedule_days = db.Column(db.String(100))  # Store as comma-separated days
+    last_run = db.Column(db.DateTime)

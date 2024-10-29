@@ -1,17 +1,19 @@
 from flask import Blueprint, render_template, request, flash, jsonify
 from flask_login import login_required, current_user
-from .models import Note, ScraperResult, SavedSearch
+from .models import Note, ScraperResult, SavedSearch, ScraperSchedule
 from . import db
 from .scrapper import run_scraper
 from geopy.exc import GeocoderTimedOut
 from geopy.geocoders import Nominatim
 import time
+import datetime
 import json
 from flask import redirect, url_for
 from io import StringIO
 import csv
 from flask import make_response
 from flask import json
+from . import scheduler
 
 views = Blueprint('views', __name__)
 
@@ -188,3 +190,117 @@ def export_deals():
     output.headers["Content-Disposition"] = "attachment; filename=deals_export.csv"
     output.headers["Content-type"] = "text/csv"
     return output
+
+
+
+@views.route('/scheduler-status')
+@login_required
+def scheduler_status():
+    schedules = ScraperSchedule.query.filter_by(user_id=current_user.id).all()
+    active_jobs = scheduler.get_jobs()
+    
+    # Add flash message to show counts
+    flash(f'Found {len(schedules)} schedules and {len(active_jobs)} active jobs', category='info')
+    
+    scheduler_info = []
+    for schedule in schedules:
+        job_info = {
+            'id': schedule.id,
+            'product': schedule.product,
+            'interval': f"Every {schedule.interval} minutes",
+            'target_price': schedule.target_price,
+            'location': f"{schedule.city}, {schedule.country}",
+            'last_run': schedule.last_run,
+            'next_run': schedule.next_run,
+            'active': schedule.active,
+            'notifications': "Enabled" if schedule.email_notification else "Disabled"
+        }
+        scheduler_info.append(job_info)
+    
+    return render_template('scheduler_status.html', 
+                         user=current_user,
+                         scheduler_info=scheduler_info,
+                         active_jobs=active_jobs)
+@views.route('/cancel-schedule/<int:schedule_id>', methods=['POST'])
+@login_required
+def cancel_schedule(schedule_id):
+                 schedule = ScraperSchedule.query.get_or_404(schedule_id)
+    
+                 if schedule.user_id != current_user.id:
+                     flash('Unauthorized access', category='error')
+                     return redirect(url_for('views.scheduler_status'))
+    
+                 # Deactivate the schedule in database
+                 schedule.active = False
+                 db.session.commit()
+    
+                 # Try to remove from scheduler if job exists
+                 job_id = f'schedule_{schedule_id}'
+                 if job_id in [job.id for job in scheduler.get_jobs()]:
+                     scheduler.remove_job(job_id)
+    
+                 flash('Schedule cancelled successfully', category='success')
+                 return redirect(url_for('views.scheduler_status'))
+
+@views.route('/create-schedule', methods=['POST'])
+@login_required
+def create_schedule():
+    product = request.form.get('product')
+    interval = int(request.form.get('interval'))
+    target_price = float(request.form.get('target_price'))
+    city = request.form.get('city')
+    country = request.form.get('country')
+    email_notification = request.form.get('email_notification') == 'on'
+    
+    current_time = datetime.datetime.now()
+    next_run_time = current_time + datetime.timedelta(minutes=interval)
+    
+    new_schedule = ScraperSchedule(
+        user_id=current_user.id,
+        product=product,
+        interval=interval,
+        target_price=target_price,
+        city=city,
+        country=country,
+        email_notification=email_notification,
+        active=True,
+        last_run=current_time,
+        next_run=next_run_time
+    )
+    
+    db.session.add(new_schedule)
+    db.session.commit()
+    
+    def scheduled_job():
+        current_time = datetime.datetime.now()
+        results = run_scraper(city, country, product, target_price, email_notification)
+        
+        schedule = ScraperSchedule.query.get(new_schedule.id)
+        schedule.last_run = current_time
+        schedule.next_run = current_time + datetime.timedelta(minutes=interval)
+        
+        if results:
+            scraper_result = ScraperResult(
+                data=json.dumps(results),
+                user_id=current_user.id,
+                product=product,
+                target_price=target_price,
+                city=city,
+                country=country,
+                email_notification=email_notification
+            )
+            db.session.add(scraper_result)
+        db.session.commit()
+    
+    scheduler.add_job(
+        func=scheduled_job,
+        trigger='interval',
+        minutes=interval,
+        id=f'schedule_{new_schedule.id}',
+        replace_existing=True,
+        next_run_time=next_run_time
+    )
+    
+    flash('New schedule created and started successfully', category='success')
+    return redirect(url_for('views.scheduler_status'))
+    return redirect(url_for('views.scheduler_status'))
