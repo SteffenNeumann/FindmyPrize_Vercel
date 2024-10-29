@@ -70,6 +70,11 @@
         <button type="submit" class="btn btn-primary">Create Schedule</button>
     </form>
 </div>
+<div class="container">
+    <form action="{{ url_for('views.cleanup_schedules') }}" method="POST">
+        <button type="submit" class="btn btn-warning">Clean Up Inactive Schedules</button>
+    </form>
+</div>
 
 <script>
     function updateTimes() {
@@ -94,3 +99,4 @@
     }, 30000);
 </script>
 {% endblock %}
+

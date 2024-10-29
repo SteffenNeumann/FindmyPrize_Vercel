@@ -303,4 +303,18 @@ def create_schedule():
     
     flash('New schedule created and started successfully', category='success')
     return redirect(url_for('views.scheduler_status'))
+
+@views.route('/cleanup-schedules', methods=['POST'])
+@login_required
+def cleanup_schedules():
+    # Deactivate all schedules for current user
+    schedules = ScraperSchedule.query.filter_by(user_id=current_user.id).all()
+    for schedule in schedules:
+        schedule.active = False
+        job_id = f'schedule_{schedule.id}'
+        if job_id in [job.id for job in scheduler.get_jobs()]:
+            scheduler.remove_job(job_id)
+    
+    db.session.commit()
+    flash('All schedules cleaned up successfully', category='success')
     return redirect(url_for('views.scheduler_status'))
