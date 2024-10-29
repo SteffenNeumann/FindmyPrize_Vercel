@@ -217,4 +217,88 @@ document.addEventListener('DOMContentLoaded', function() {
                 <div class="card-header d-flex justify-content-between align-items-center">
                     <span><i class="fas fa-shopping-cart"></i> Deal #{{ deal.id }}</span>
                     <form action="{{ url_for('views.delete_deal') }}" method="POST" class="d-inline">
-                        <input type="hidde
+                        <input type="hidden" name="deal_id" value="{{ deal.id }}">
+                        <button type="submit" class="btn btn-sm btn-outline-danger" 
+                                onclick="return confirm('Delete this deal?')">
+                            <i class="fas fa-trash"></i>
+                        </button>
+                    </form>
+                </div>
+                <div class="card-body">
+                    {% for item in deal_data %}
+                        {% if item.strip() %}
+                            {% set formatted_item = item|regex_replace('\\\\u20ac', '€')|regex_replace('Deal alert! ', '') %}
+                            <p class="card-text">
+                                <strong><i class="fas fa-store"></i> Store:</strong> 
+                                {{ formatted_item.split('!')[0] }}!
+                            </p>
+                            <p class="card-text">
+                                <strong><i class="fas fa-tag"></i> Price:</strong> 
+                                {{ formatted_item.split('Target price: ')[1].strip() }}
+                            </p>
+                        {% endif %}
+                    {% endfor %}
+                    <p class="card-text">
+                        <small class="text-muted">
+                            <i class="far fa-clock"></i> 
+                            {{ moment(deal.date_created).fromNow() }}
+                        </small>
+                    </p>
+                </div>
+            </div>
+        </div>
+    {% endif %}
+    {% endfor %}
+</div>
+{% else %}
+<div class="alert alert-info">
+    <i class="fas fa-info-circle me-2"></i>
+    No previous deals in database
+</div>
+{% endif %}
+
+
+<script>
+    document.addEventListener('DOMContentLoaded', function() {
+        {% if saved_search %}
+            // Populate form fields with saved search data
+            document.getElementById('product').value = "{{ saved_search.product }}";
+            document.getElementById('price').value = "{{ saved_search.target_price }}";
+            document.getElementById('city').value = "{{ saved_search.city }}";
+            document.getElementById('country').value = "{{ saved_search.country }}";
+            document.getElementById('emailNotification').checked = {{ 'true' if saved_search.email_notification else 'false' }};
+        {% endif %}
+    });
+    </script>
+    
+
+    <script>
+        document.getElementById('scheduleType').addEventListener('change', function() {
+            const scheduleDetails = document.getElementById('scheduleDetails');
+            const dailyOptions = document.getElementById('dailyOptions');
+            const weeklyOptions = document.getElementById('weeklyOptions');
+            
+            switch(this.value) {
+                case 'none':
+                    scheduleDetails.style.display = 'none';
+                    break;
+                case 'hourly':
+                    scheduleDetails.style.display = 'none';
+                    break;
+                case 'daily':
+                    scheduleDetails.style.display = 'block';
+                    dailyOptions.style.display = 'block';
+                    weeklyOptions.style.display = 'none';
+                    break;
+                case 'weekly':
+                    scheduleDetails.style.display = 'block';
+                    dailyOptions.style.display = 'none';
+                    weeklyOptions.style.display = 'block';
+                    break;
+            }
+        });
+        </script>
+
+{% endblock %}
+
+
