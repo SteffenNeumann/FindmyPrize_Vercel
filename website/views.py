@@ -165,4 +165,26 @@ def clear_deals():
 @views.route('/delete-deal', methods=['POST'])
 @login_required
 def delete_deal():
-    deal_id = request.form.get('dea
+    deal_id = request.form.get('deal_id')
+    deal = ScraperResult.query.get(deal_id)
+    
+    if deal and deal.user_id == current_user.id:
+        db.session.delete(deal)
+        db.session.commit()
+        flash('Deal deleted successfully!', 'success')
+    
+    return redirect(url_for('views.home'))
+
+@views.route('/export-deals')
+def export_deals():
+    deals = ScraperResult.query.all()
+    si = StringIO()
+    cw = csv.writer(si)
+    cw.writerow(['ID', 'Date', 'Data'])  # Headers
+    for deal in deals:
+        cw.writerow([deal.id, deal.date_created, deal.data])
+    
+    output = make_response(si.getvalue())
+    output.headers["Content-Disposition"] = "attachment; filename=deals_export.csv"
+    output.headers["Content-type"] = "text/csv"
+    return output

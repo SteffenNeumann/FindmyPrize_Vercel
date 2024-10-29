@@ -226,4 +226,19 @@ document.addEventListener('DOMContentLoaded', function() {
 
 
 <script>
-    d
+    document.addEventListener('DOMContentLoaded', function() {
+        {% if saved_search %}
+            // Populate form fields with saved search data
+            document.getElementById('product').value = "{{ saved_search.product }}";
+            document.getElementById('price').value = "{{ saved_search.target_price }}";
+            document.getElementById('city').value = "{{ saved_search.city }}";
+            document.getElementById('country').value = "{{ saved_search.country }}";
+            document.getElementById('emailNotification').checked = {{ 'true' if saved_search.email_notification else 'false' }};
+        {% endif %}
+    });
+    </script>
+    
+
+
+{% endblock %}
+
