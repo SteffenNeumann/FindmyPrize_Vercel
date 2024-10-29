@@ -1,6 +1,6 @@
 from flask import Blueprint, render_template, request, flash, jsonify
 from flask_login import login_required, current_user
-from .models import Note, ScraperResult
+from .models import Note, ScraperResult, SavedSearch
 from . import db
 from .scrapper import run_scraper
 from geopy.exc import GeocoderTimedOut
@@ -30,7 +30,8 @@ def geocode_with_retry(address, max_attempts=5):
 @views.route('/', methods=['GET', 'POST'])
 @login_required
 def home():
-    # Only get deals for the logged-in user
+    # Load saved searches for the user
+    saved_searches = SavedSearch.query.filter_by(user_id=current_user.id).order_by(SavedSearch.date_created.desc()).first()
     saved_deals = ScraperResult.query.filter_by(user_id=current_user.id).order_by(ScraperResult.id.desc()).all()
     
     if request.method == 'POST':
@@ -38,7 +39,22 @@ def home():
         country = request.form.get('country')
         product = request.form.get('product')
         price = request.form.get('price').replace(',', '.')
+        save_search = request.form.get('saveSearch') == 'on'
+        email_notification = request.form.get('emailNotification') == 'on'
         
+        # Save the search if checkbox is checked
+        if save_search:
+            saved_search = SavedSearch(
+                user_id=current_user.id,
+                product=product,
+                target_price=float(price),
+                city=city,
+                country=country,
+                email_notification=email_notification
+            )
+            db.session.add(saved_search)
+            db.session.commit()
+            
         if city and country and product and price:
             location_string = f"{city}, {country}"
             geolocator = Nominatim(user_agent="FindmyPrize_Flask", timeout=10)
@@ -46,7 +62,6 @@ def home():
             try:
                 loc = geolocator.geocode(location_string)
                 if loc and hasattr(loc, 'longitude') and hasattr(loc, 'latitude'):
-                    email_notification = request.form.get('emailNotification') == 'on'
                     results = run_scraper(city, country, product, float(price), email_notification)
                     
                     # Store results in database only if deals were found
@@ -72,7 +87,10 @@ def home():
             except GeocoderTimedOut:
                 flash('Geocoding service timed out', category='error')
     
-    return render_template('home.html', user=current_user, deals=saved_deals)
+    return render_template('home.html', 
+                         user=current_user, 
+                         deals=saved_deals, 
+                         saved_search=saved_searches)
 @views.route('/delete-note', methods=['POST'])
 def delete_note():  
      note = json.loads(request.data) # this function expects a JSON from the INDEX.js file 
@@ -147,26 +165,4 @@ def clear_deals():
 @views.route('/delete-deal', methods=['POST'])
 @login_required
 def delete_deal():
-    deal_id = request.form.get('deal_id')
-    deal = ScraperResult.query.get(deal_id)
-    
-    if deal and deal.user_id == current_user.id:
-        db.session.delete(deal)
-        db.session.commit()
-        flash('Deal deleted successfully!', 'success')
-    
-    return redirect(url_for('views.home'))
-
-@views.route('/export-deals')
-def export_deals():
-    deals = ScraperResult.query.all()
-    si = StringIO()
-    cw = csv.writer(si)
-    cw.writerow(['ID', 'Date', 'Data'])  # Headers
-    for deal in deals:
-        cw.writerow([deal.id, deal.date_created, deal.data])
-    
-    output = make_response(si.getvalue())
-    output.headers["Content-Disposition"] = "attachment; filename=deals_export.csv"
-    output.headers["Content-type"] = "text/csv"
-    return output
+    deal_id = request.form.get('dea
