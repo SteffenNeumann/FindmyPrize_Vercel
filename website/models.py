@@ -87,3 +87,7 @@ class SavedSearch(db.Model):
    
 
 
+
+@property
+def date_joined(self):
+    return self.date_created
