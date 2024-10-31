@@ -222,7 +222,7 @@ def scheduler_status():
                          user=current_user,
                          scheduler_info=scheduler_info,
                          active_jobs=active_jobs,
-                         date_joined=current_user.date_created)  # Add this line)
+                        )  
 @views.route('/cancel-schedule/<int:schedule_id>', methods=['POST'])
 @login_required
 def cancel_schedule(schedule_id):

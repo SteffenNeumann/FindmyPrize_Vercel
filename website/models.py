@@ -18,7 +18,7 @@ from geopy.exc import GeocoderTimedOut
 from geopy.geocoders import Nominatim
 from functools import partial
 import time
-from datetime import datetime
+from datetime import datetime, timezone
 
 class Note(db.Model):
     id = db.Column(db.Integer, primary_key=True)
@@ -37,7 +37,7 @@ class User(db.Model, UserMixin):
     notes = db.relationship('Note')
     email_notifications = db.Column(db.Boolean, default=True)
     browser_notifications = db.Column(db.Boolean, default=False)
-    date_created = db.Column(db.DateTime, default=datetime.utcnow)
+    date_joined  = db.Column(db.DateTime, default=lambda: datetime.now(timezone.utc))
 
 class ScraperResult(db.Model):
     id = db.Column(db.Integer, primary_key=True)
@@ -87,7 +87,3 @@ class SavedSearch(db.Model):
    
 
 
-
-@property
-def date_joined(self):
-    return self.date_created

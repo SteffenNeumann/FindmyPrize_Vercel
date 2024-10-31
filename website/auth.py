@@ -3,7 +3,7 @@ from .models import User
 from werkzeug.security import generate_password_hash, check_password_hash
 from . import db   ##means from __init__.py import db
 from flask_login import login_user, login_required, logout_user, current_user
-from datetime import datetime
+from datetime import datetime, timezone
 
 
 auth = Blueprint('auth', __name__)
@@ -63,7 +63,8 @@ def sign_up():
                 password1, method='pbkdf2:sha256'), 
                 city=request.form.get('city'),
                 country=request.form.get('country'),
-                date_created=datetime.now() )
+                date_joined=datetime.now(timezone.utc) 
+            )
             
             db.session.add(new_user)
             db.session.commit()
