@@ -14,6 +14,7 @@ import csv
 from flask import make_response
 from flask import json
 from . import scheduler
+from .models import User
 
 views = Blueprint('views', __name__)
 
@@ -220,7 +221,8 @@ def scheduler_status():
     return render_template('scheduler_status.html', 
                          user=current_user,
                          scheduler_info=scheduler_info,
-                         active_jobs=active_jobs)
+                         active_jobs=active_jobs,
+                         date_joined=current_user.date_created)  # Add this line)
 @views.route('/cancel-schedule/<int:schedule_id>', methods=['POST'])
 @login_required
 def cancel_schedule(schedule_id):
@@ -319,4 +321,29 @@ def cleanup_schedules():
     
     db.session.commit()
     flash('All schedules cleaned up successfully', category='success')
+    return redirect(url_for('views.scheduler_status'))
+
+@views.route('/update_location', methods=['POST'])
+@login_required
+def update_location():
+    user = current_user
+    user.city = request.form.get('city')
+    user.country = request.form.get('country')
+    db.session.commit()
+    flash('Location updated successfully!', category='success')
+    return redirect(url_for('views.scheduler_status'))
+
+@views.route('/update_preferences', methods=['POST'])
+@login_required
+def update_preferences():
+    email_notifications = request.form.get('email_notifications') == 'on'
+    browser_notifications = request.form.get('browser_notifications') == 'on'
+    
+    # Update user preferences
+    user = User.query.get(current_user.id)
+    user.email_notifications = email_notifications
+    user.browser_notifications = browser_notifications
+    db.session.commit()
+    
+    flash('Notification preferences updated successfully', category='success')
     return redirect(url_for('views.scheduler_status'))
