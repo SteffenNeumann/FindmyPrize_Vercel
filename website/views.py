@@ -252,7 +252,7 @@ def create_schedule():
     target_price = request.form.get('price').replace(',', '.')
     city = current_user.city
     country=current_user.country
-    email_notification = request.form.get('email_notification') == 'on'
+    email_notification = request.form.get('emailNotification') == 'on'
 
     
     current_time = datetime.datetime.now()
@@ -306,7 +306,7 @@ def create_schedule():
     
     flash('New schedule created and started successfully', category='success')
     return redirect(url_for('views.scheduler_status'))
-    return redirect(url_for('views.scheduler_status'))
+
 
 @views.route('/cleanup-schedules', methods=['POST'])
 @login_required
