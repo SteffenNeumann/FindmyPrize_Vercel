@@ -1,0 +1,83 @@
+.hover-effect {
+    transition: transform 0.2s ease-in-out;
+}
+
+.hover-effect:hover {
+    transform: translateY(-5px);
+    box-shadow: 0 4px 15px rgba(0,0,0,0.1) !important;
+}
+
+.card-header {
+    border-bottom: none;
+}
+
+.card {
+    border-radius: 10px;
+    border: none;
+}
+.schedule-container {
+    background-color: #f8f9fa;
+    transition: all 0.3s ease;
+}
+
+.schedule-container:hover {
+    background-color: #fff;
+    box-shadow: 0 0.5rem 1rem rgba(0, 0, 0, 0.15) !important;
+}
+
+.btn-check:checked + .btn-outline-primary {
+    background-color: #0d6efd;
+    color: white;
+}
+
+.week-days-selector .btn {
+    padding: 0.375rem 0.75rem;
+    margin: 0.25rem;
+}
+
+.schedule-options {
+    transition: all 0.3s ease;
+    padding: 1rem 0;
+}
+
+.form-control, .form-select {
+    border-radius: 0.5rem;
+}
+
+body {
+    background-color: #f5f5f5;
+}
+
+.container {
+    background-color: white;
+    padding: 20px;
+    border-radius: 8px;
+    box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+}
+
+/* Test style with bright color */
+.navbar {
+    border-bottom: 0px solid #ff6b6b;
+}
+.hover-effect {
+    transition: transform 0.2s ease-in-out;
+}
+.hover-effect:hover {
+    transform: translateY(-5px);
+}
+.form-floating > .form-control:focus ~ label,
+.form-floating > .form-control:not(:placeholder-shown) ~ label {
+    color: var(--bs-primary);
+}
+.btn-check:checked + .btn-outline-primary {
+    box-shadow: 0 0 0 0.25rem rgba(13, 110, 253, 0.25);
+}
+.card {
+    transition: box-shadow 0.3s ease-in-out;
+}
+.card:hover {
+    box-shadow: 0 0.5rem 1rem rgba(0, 0, 0, 0.15) !important;
+}
+.btn-group {
+    align-items:flex-start;
+}

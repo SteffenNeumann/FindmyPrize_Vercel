@@ -3,15 +3,26 @@ from . import scheduler, db
 from .models import SavedSearch
 from .scrapper import run_scraper
 
-@scheduler.task('interval', id='check_scheduled_searches', hours=1)
+@scheduler.task('interval', id='check_scheduled_searches', minutes=1)
 def check_scheduled_searches():
     current_time = datetime.now()
     searches = SavedSearch.query.all()
     
     for search in searches:
-        if search.schedule_type == 'hourly':
-            run_scheduled_search(search)
-        
+        if search.schedule_type == 'manual':
+            interval_value = int(search.interval_value)
+            interval_unit = search.interval_unit
+            
+            if interval_unit == 'minutes':
+                minutes_passed = (current_time - search.last_run).total_seconds() / 60
+                if minutes_passed >= interval_value:
+                    run_scheduled_search(search)
+            
+            elif interval_unit == 'hours':
+                hours_passed = (current_time - search.last_run).total_seconds() / 3600
+                if hours_passed >= interval_value:
+                    run_scheduled_search(search)
+                    
         elif search.schedule_type == 'daily':
             if should_run_daily(search, current_time):
                 run_scheduled_search(search)
@@ -19,7 +30,6 @@ def check_scheduled_searches():
         elif search.schedule_type == 'weekly':
             if should_run_weekly(search, current_time):
                 run_scheduled_search(search)
-
 def run_scheduled_search(search):
     run_scraper(
         city=search.city,

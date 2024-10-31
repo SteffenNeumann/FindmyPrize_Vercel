@@ -18,3 +18,21 @@ function updateDealsList() {
 }
 
 setInterval(updateDealsList, 300000); // Update every 5 minutes
+
+document.addEventListener('DOMContentLoaded', function() {
+    const scheduleTypes = document.getElementsByName('scheduleType');
+    const allOptions = document.querySelectorAll('.schedule-options');
+    
+    scheduleTypes.forEach(type => {
+        type.addEventListener('change', function() {
+            // Hide all options first
+            allOptions.forEach(opt => opt.style.display = 'none');
+            
+            // Show selected option
+            const selectedOption = document.getElementById(`${this.value}Options`);
+            if (selectedOption) {
+                selectedOption.style.display = 'block';
+            }
+        });
+    });
+});

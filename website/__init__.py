@@ -11,7 +11,7 @@ DB_NAME = "database.db"
 scheduler = APScheduler()
 
 def create_app():
-    app = Flask(__name__)
+    app = Flask(__name__, static_folder='static')
     moment = Moment(app)
     # Add this custom filter
     @app.template_filter('regex_replace')

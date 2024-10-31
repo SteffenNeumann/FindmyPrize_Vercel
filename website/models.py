@@ -76,4 +76,5 @@ class SavedSearch(db.Model):
     schedule_type = db.Column(db.String(20))
     schedule_time = db.Column(db.Time)
     schedule_days = db.Column(db.String(100))  # Store as comma-separated days
-    last_run = db.Column(db.DateTime)
+    interval_value = db.Column(db.Integer)
+    interval_unit = db.Column(db.String(10))  # 'minutes' or 'hours'    last_run = db.Column(db.DateTime)
