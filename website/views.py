@@ -244,17 +244,44 @@ def cancel_schedule(schedule_id):
                  flash('Schedule cancelled successfully', category='success')
                  return redirect(url_for('views.scheduler_status'))
 
+def scheduled_job(schedule_id):
+    schedule = ScraperSchedule.query.get(schedule_id)
+    current_time = datetime.datetime.now()
+    results = run_scraper(
+        city=schedule.city,
+        country=schedule.country,
+        product=schedule.product,
+        target_price=schedule.target_price,
+        email_notification=schedule.email_notification,
+        user_id=schedule.user_id
+    )
+    
+    schedule.last_run = current_time
+    schedule.next_run = current_time + datetime.timedelta(minutes=schedule.interval)
+    
+    if results:
+        scraper_result = ScraperResult(
+            data=json.dumps(results),
+            user_id=schedule.user_id,
+            product=schedule.product,
+            target_price=schedule.target_price,
+            city=schedule.city,
+            country=schedule.country,
+            email_notification=schedule.email_notification
+        )
+        db.session.add(scraper_result)
+    db.session.commit()
+
 @views.route('/create-schedule', methods=['POST'])
 @login_required
 def create_schedule():
     product = request.form.get('product')
-    interval = int(request.form.get('intervalUnit', '60'))  # Default to 60 if not provided
+    interval = int(request.form.get('intervalUnit', '60'))
     target_price = request.form.get('price').replace(',', '.')
     city = current_user.city
-    country=current_user.country
+    country = current_user.country
     email_notification = request.form.get('emailNotification') == 'on'
 
-    
     current_time = datetime.datetime.now()
     next_run_time = current_time + datetime.timedelta(minutes=interval)
     
@@ -263,7 +290,7 @@ def create_schedule():
         product=product,
         interval=interval,
         target_price=target_price,
-        city = city,
+        city=city,
         country=country,
         email_notification=email_notification,
         active=True,
@@ -273,30 +300,12 @@ def create_schedule():
     
     db.session.add(new_schedule)
     db.session.commit()
-    
-    def scheduled_job():
-        current_time = datetime.datetime.now()
-        results = run_scraper(city, country, product, target_price, email_notification)
-        
-        schedule = ScraperSchedule.query.get(new_schedule.id)
-        schedule.last_run = current_time
-        schedule.next_run = current_time + datetime.timedelta(minutes=interval)
-        
-        if results:
-            scraper_result = ScraperResult(
-                data=json.dumps(results),
-                user_id=current_user.id,
-                product=product,
-                target_price=target_price,
-                city=city,
-                country=country,
-                email_notification=email_notification
-            )
-            db.session.add(scraper_result)
-        db.session.commit()
+
+    def job_wrapper():
+        scheduled_job(new_schedule.id)
     
     scheduler.add_job(
-        func=scheduled_job,
+        func=job_wrapper,
         trigger='interval',
         minutes=interval,
         id=f'schedule_{new_schedule.id}',
@@ -306,7 +315,6 @@ def create_schedule():
     
     flash('New schedule created and started successfully', category='success')
     return redirect(url_for('views.scheduler_status'))
-
 
 @views.route('/cleanup-schedules', methods=['POST'])
 @login_required
@@ -346,4 +354,34 @@ def update_preferences():
     db.session.commit()
     
     flash('Notification preferences updated successfully', category='success')
+    return redirect(url_for('views.scheduler_status'))
+
+@views.route('/resume_schedule/<int:schedule_id>', methods=['POST'])
+@login_required
+def resume_schedule(schedule_id):
+    schedule = ScraperSchedule.query.get_or_404(schedule_id)
+    
+    if schedule.user_id != current_user.id:
+        flash('Unauthorized access', category='error')
+        return redirect(url_for('views.scheduler_status'))
+    
+    # Reactivate the schedule in database
+    schedule.active = True
+    current_time = datetime.datetime.now()
+    next_run_time = current_time + datetime.timedelta(minutes=schedule.interval)
+    schedule.next_run = next_run_time
+    db.session.commit()
+    
+    # Add job back to scheduler using the existing scheduled_job function
+    scheduler.add_job(
+        func=scheduled_job,
+        args=[schedule.id],
+        trigger='interval',
+        minutes=schedule.interval,
+        id=f'schedule_{schedule.id}',
+        replace_existing=True,
+        next_run_time=next_run_time
+    )
+    
+    flash('Schedule resumed successfully', category='success')
     return redirect(url_for('views.scheduler_status'))

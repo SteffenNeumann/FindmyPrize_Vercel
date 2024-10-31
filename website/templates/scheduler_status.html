@@ -102,11 +102,12 @@
                     <td>
                         <div class="btn-group" role="group">
                             <form action="{{ url_for('views.cancel_schedule', schedule_id=schedule.id) }}" method="POST" class="mr-2">
-                                <button type="submit" class="btn btn-danger btn-sm">Cancel</button>
+                                <button type="submit" class="btn btn-danger btn-sm">Pause</button>
                             </form>
-                            <button type="button" class="btn btn-primary btn-sm" data-toggle="modal" data-target="#editModal{{ schedule.id }}">
-                                Edit
-                            </button>
+                            <form action="{{ url_for('views.resume_schedule', schedule_id=schedule.id) }}" method="POST">
+                                <button type="submit" class="btn btn-primary btn-sm">Resume</button>
+                            </form>
+                            
                         </div>
                     </td>
                 </tr>
@@ -132,11 +133,13 @@
         });
     }
 
-    setInterval(updateTimes, 1000);
+    // Update times every 5 seconds instead of every second
+    setInterval(updateTimes, 5000);
     updateTimes();
 
+    // Refresh page every minute instead of 30 seconds
     setTimeout(function(){
         window.location.reload();
-    }, 30000);
+    }, 60000);
 </script>
 {% endblock %}
