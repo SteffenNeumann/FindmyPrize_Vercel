@@ -1,3 +1,16 @@
+"""
+This module defines the database models for the application.
+
+The `Note` model represents a note that is associated with a user. It has an `id`, `data`, `date`, and `user_id` field.
+
+The `User` model represents a user of the application. It has an `id`, `email`, `password`, `first_name`, and `notes` field.
+
+The `ScraperResult` model represents the result of a web scraping operation. It has an `id`, `data`, `date_created`, `store`, `price`, `user_id`, `product`, `target_price`, `city`, `country`, `email_notification`, and `user` field.
+
+The `ScraperSchedule` model represents a scheduled web scraping operation. It has an `id`, `user_id`, `interval`, `active`, `last_run`, `next_run`, `product`, `target_price`, `city`, `country`, `email_notification`, and `user` field.
+
+The `SavedSearch` model represents a saved search that a user has created. It has an `id`, `user_id`, `product`, `target_price`, `city`, `country`, `email_notification`, `date_created`, `user`, `schedule_type`, `schedule_time`, and `schedule_days` field.
+"""
 from . import db
 from flask_login import UserMixin
 from sqlalchemy.sql import func
@@ -18,6 +31,8 @@ class User(db.Model, UserMixin):
     email = db.Column(db.String(150), unique=True)
     password = db.Column(db.String(150))
     first_name = db.Column(db.String(150))
+    city = db.Column(db.String(100))
+    country = db.Column(db.String(100))
     notes = db.relationship('Note')
 
 class ScraperResult(db.Model):

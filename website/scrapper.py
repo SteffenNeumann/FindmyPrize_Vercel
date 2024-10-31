@@ -1,3 +1,17 @@
+"""
+Runs a web scraper to search for products on the meinprospekt.de website and logs any deals found.
+
+Args:
+    city (str): The city to search for products in.
+    country (str): The country to search for products in.
+    product (str): The product to search for.
+    target_price (float): The target price for the product.
+    should_send_email (bool): Whether to send an email notification for any deals found.
+    user_id (int, optional): The ID of the user who requested the scraping.
+
+Returns:
+    list: A list of strings representing the output of the scraping process.
+"""
 from playwright.sync_api import sync_playwright, TimeoutError as PlaywrightTimeoutError
 import os
 from geopy.geocoders import Nominatim

@@ -1,3 +1,20 @@
+"""
+Handles the routing and logic for the views blueprint in the Flask application.
+
+The `views` blueprint contains the following routes and functionality:
+
+- `home()`: Handles the main homepage, allowing users to search for deals, save searches, and view past results.
+- `delete_note()`: Deletes a note associated with the current user.
+- `handle_geocoding()`: Performs geocoding on an address and returns the latitude, longitude, and address, as well as any scraper results.
+- `past_results()`: Returns a list of all past scraper results for the current user.
+- `clear_deals()`: Deletes all scraper results for the current user.
+- `delete_deal()`: Deletes a specific scraper result for the current user.
+- `export_deals()`: Exports all scraper results for the current user as a CSV file.
+- `scheduler_status()`: Displays the status of all scheduled scraper jobs for the current user.
+- `cancel_schedule()`: Cancels a specific scheduled scraper job for the current user.
+- `create_schedule()`: Creates a new scheduled scraper job for the current user.
+- `cleanup_schedules()`: Deactivates and removes all scheduled scraper jobs for the current user.
+"""
 from flask import Blueprint, render_template, request, flash, jsonify
 from flask_login import login_required, current_user
 from .models import Note, ScraperResult, SavedSearch, ScraperSchedule
@@ -21,6 +38,7 @@ def geocode_with_retry(address, max_attempts=5):
     geolocator = Nominatim(user_agent="FindmyPrize_Flask")
     for attempt in range(max_attempts):
         try:
+            
             location = geolocator.geocode(address, timeout=10)
             if location:
                 return location
@@ -37,8 +55,9 @@ def home():
     saved_deals = ScraperResult.query.filter_by(user_id=current_user.id).order_by(ScraperResult.id.desc()).all()
     
     if request.method == 'POST':
-        city = request.form.get('city')
-        country = request.form.get('country')
+        # Get city and country from user profile instead of form
+        city = current_user.city
+        country = current_user.country
         product = request.form.get('product')
         price = request.form.get('price').replace(',', '.')
         save_search = request.form.get('saveSearch') == 'on'
@@ -57,7 +76,7 @@ def home():
             db.session.add(saved_search)
             db.session.commit()
             
-        if city and country and product and price:
+        if product and price:
             location_string = f"{city}, {country}"
             geolocator = Nominatim(user_agent="FindmyPrize_Flask", timeout=10)
             
@@ -66,7 +85,6 @@ def home():
                 if loc and hasattr(loc, 'longitude') and hasattr(loc, 'latitude'):
                     results = run_scraper(city, country, product, float(price), email_notification)
                     
-                    # Store results in database only if deals were found
                     if results:
                         scraper_result = ScraperResult(
                             data=json.dumps(results),
@@ -76,7 +94,7 @@ def home():
                             city=city,
                             country=country,
                             email_notification=email_notification
-                            )
+                        )
                         db.session.add(scraper_result)
                         db.session.commit()
                     else:
