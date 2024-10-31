@@ -38,6 +38,7 @@ def check_scheduled_searches():
         elif search.schedule_type == 'weekly':
             if should_run_weekly(search, current_time):
                 run_scheduled_search(search)
+
 def run_scheduled_search(search):
     run_scraper(
         city=search.city,
@@ -55,7 +56,6 @@ def should_run_daily(search, current_time):
     return current_time.time().hour == scheduled_time.hour and current_time.time().minute == scheduled_time.minute
 
 def should_run_weekly(search, current_time):
-    scheduled_time = datetime.strptime(search.schedule_time, '%H:%M').time()
     scheduled_days = search.schedule_days.split(',')
     current_day = current_time.strftime('%a')
     return current_day in scheduled_days and should_run_daily(search, current_time)

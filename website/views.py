@@ -260,67 +260,38 @@ def cancel_schedule(schedule_id):
                  flash('Schedule cancelled successfully', category='success')
                  return redirect(url_for('views.scheduler_status'))
 
-@views.route('/create-schedule', methods=['POST'])
+@views.route('/create_schedule', methods=['POST'])
 @login_required
 def create_schedule():
+    schedule_type = request.form.get('scheduleType')
     product = request.form.get('product')
-    interval = int(request.form.get('interval'))
-    target_price = float(request.form.get('target_price'))
-    city = request.form.get('city')
-    country = request.form.get('country')
-    email_notification = request.form.get('email_notification') == 'on'
+    # Convert price format from '1,99' to '1.99'
+    target_price = float(request.form.get('price').replace(',', '.'))
+    email_notification = request.form.get('emailNotification') == 'on'
     
-    current_time = datetime.datetime.now()
-    next_run_time = current_time + datetime.timedelta(minutes=interval)
-    
-    new_schedule = ScraperSchedule(
+    new_search = SavedSearch(
         user_id=current_user.id,
         product=product,
-        interval=interval,
         target_price=target_price,
-        city=city,
-        country=country,
         email_notification=email_notification,
-        active=True,
-        last_run=current_time,
-        next_run=next_run_time
+        schedule_type=schedule_type,
+        date_created=datetime.datetime.now()
     )
     
-    db.session.add(new_schedule)
+    if schedule_type == 'manual':
+        new_search.interval_value = request.form.get('intervalUnit')
+        new_search.interval_unit = 'minutes'
+        new_search.duration = request.form.get('endTime')
+    elif schedule_type == 'daily':
+        new_search.schedule_time = request.form.get('dailyTime')
+    elif schedule_type == 'weekly':
+        new_search.schedule_time = request.form.get('weeklyTime')
+        new_search.schedule_days = ','.join(request.form.getlist('weekDays'))
+    
+    db.session.add(new_search)
     db.session.commit()
     
-    def scheduled_job():
-        current_time = datetime.datetime.now()
-        results = run_scraper(city, country, product, target_price, email_notification)
-        
-        schedule = ScraperSchedule.query.get(new_schedule.id)
-        schedule.last_run = current_time
-        schedule.next_run = current_time + datetime.timedelta(minutes=interval)
-        
-        if results:
-            scraper_result = ScraperResult(
-                data=json.dumps(results),
-                user_id=current_user.id,
-                product=product,
-                target_price=target_price,
-                city=city,
-                country=country,
-                email_notification=email_notification
-            )
-            db.session.add(scraper_result)
-        db.session.commit()
-    
-    scheduler.add_job(
-        func=scheduled_job,
-        trigger='interval',
-        minutes=interval,
-        id=f'schedule_{new_schedule.id}',
-        replace_existing=True,
-        next_run_time=next_run_time
-    )
-    
-    flash('New schedule created and started successfully', category='success')
-    return redirect(url_for('views.scheduler_status'))
+    return redirect(url_for('views.home'))
 
 @views.route('/cleanup-schedules', methods=['POST'])
 @login_required
