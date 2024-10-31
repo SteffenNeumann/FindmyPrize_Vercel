@@ -81,3 +81,14 @@ body {
 .btn-group {
     align-items:flex-start;
 }
+.btn-check {
+    appearance: none;
+    -webkit-appearance: none;
+    position: absolute;
+    opacity: 0;
+}
+
+.btn-check:checked + .btn {
+    background-color: var(--bs-primary);
+    color: white;
+}

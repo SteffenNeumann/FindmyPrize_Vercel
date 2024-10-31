@@ -51,6 +51,7 @@ class ScraperResult(db.Model):
 
 class ScraperSchedule(db.Model):
     id = db.Column(db.Integer, primary_key=True)
+    duration = db.Column(db.Integer)  # Duration in minutes
     user_id = db.Column(db.Integer, db.ForeignKey('user.id'))
     interval = db.Column(db.Integer)  # minutes between runs
     active = db.Column(db.Boolean, default=True)
@@ -65,6 +66,7 @@ class ScraperSchedule(db.Model):
 
 class SavedSearch(db.Model):
     id = db.Column(db.Integer, primary_key=True)
+    duration = db.Column(db.Integer)  # Duration in minutes
     user_id = db.Column(db.Integer, db.ForeignKey('user.id'))
     product = db.Column(db.String(200))
     target_price = db.Column(db.Float)
@@ -78,3 +80,6 @@ class SavedSearch(db.Model):
     schedule_days = db.Column(db.String(100))  # Store as comma-separated days
     interval_value = db.Column(db.Integer)
     interval_unit = db.Column(db.String(10))  # 'minutes' or 'hours'    last_run = db.Column(db.DateTime)
+   
+
+

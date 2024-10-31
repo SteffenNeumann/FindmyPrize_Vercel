@@ -9,6 +9,14 @@ def check_scheduled_searches():
     searches = SavedSearch.query.all()
     
     for search in searches:
+        # Check if search has exceeded its duration
+        if search.duration:
+            time_elapsed = (current_time - search.date_created).total_seconds() / 60
+            if time_elapsed >= search.duration:
+                search.schedule_type = None  # Deactivate schedule
+                db.session.commit()
+                continue
+                
         if search.schedule_type == 'manual':
             interval_value = int(search.interval_value)
             interval_unit = search.interval_unit

@@ -52,90 +52,95 @@
                             </div>
                         </div>
                     </div>
-
                     <!-- Schedule Section -->
                     <div class="schedule-section mt-4">
                         <h5 class="mb-3"><i class="fas fa-clock text-primary"></i> Schedule Search</h5>
                         <div class="card bg-light border-0">
                             <div class="card-body">
-                                <div class="btn-group w-100 mb-3" role="group">
-                                    <input type="radio" class="btn-check" name="scheduleType" id="manual" value="manual">
-                                    <label class="btn btn-outline-primary" for="manual">
-                                        <i class="fas fa-user-clock"></i> Manual
-                                    </label>
-                                    <input type="radio" class="btn-check" name="scheduleType" id="daily" value="daily">
-                                    <label class="btn btn-outline-primary" for="daily">
-                                        <i class="fas fa-calendar-day"></i> Daily
-                                    </label>
-                                    <input type="radio" class="btn-check" name="scheduleType" id="weekly" value="weekly">
-                                    <label class="btn btn-outline-primary" for="weekly">
-                                        <i class="fas fa-calendar-week"></i> Weekly
-                                    </label>
-                                </div>
-                                
-                                <!-- Schedule Options (keep existing options with improved styling) -->
+                               <!-- Modern Schedule Type Selector -->
+<div class="schedule-type-selector mb-4">
+    <div class="row g-3 list-unstyled">
+        <div class="col-md-4">
+            <input type="radio" class="btn-check" name="scheduleType" id="manual" value="manual">
+            <label class="btn btn-outline-primary w-100 h-100 py-3" for="manual">
+                <i class="fas fa-user-clock fs-4 d-block mb-2"></i>
+                Manual Interval
+            </label>
+        </div>
+        <div class="col-md-4">
+            <input type="radio" class="btn-check" name="scheduleType" id="daily" value="daily">
+            <label class="btn btn-outline-primary w-100 h-100 py-3" for="daily">
+                <i class="fas fa-calendar-day fs-4 d-block mb-2"></i>
+                Daily Schedule
+            </label>
+        </div>
+        <div class="col-md-4">
+            <input type="radio" class="btn-check" name="scheduleType" id="weekly" value="weekly">
+            <label class="btn btn-outline-primary w-100 h-100 py-3" for="weekly">
+                <i class="fas fa-calendar-week fs-4 d-block mb-2"></i>
+                Weekly Schedule
+            </label>
+        </div>
+    </div>
+</div>
+
+
                                 <!-- Manual Schedule Options -->
-                                <div id="manualOptions" class="schedule-options" style="display: none;">
-                                    <div class="d-flex flex-column gap-3">
-                                        <div class="form-group">
-                                            <label for="intervalValue" class="form-label fw-bold">
-                                                <i class="fas fa-clock me-2"></i>Repeat every:
+                                <div id="manualOptions" class="schedule-options bg-white p-4 rounded shadow-sm" style="display: none;">
+                                    <div class="row g-4">
+                                        <div class="col-md-4">
+                                            <label class="form-label fw-bold">
+                                                <i class="fas fa-clock me-2"></i>Interval
                                             </label>
-                                            <input type="number" class="form-control" id="intervalValue" name="intervalValue" min="1" value="1">
-                                        </div>
-                                        
-                                        <div class="form-group">
-                                            <label for="intervalUnit" class="form-label fw-bold">
-                                                <i class="fas fa-hourglass-half me-2"></i>Time unit:
-                                            </label>
-                                            <select class="form-select" id="intervalUnit" name="intervalUnit">
-                                                <option value="5">5 minutes</option>
-                                                <option value="15">15 minutes</option>
-                                                <option value="30">30 minutes</option>
-                                                <option value="60">1 hour</option>
-                                                <option value="120">2 hours</option>
-                                                <option value="180">3 hours</option>
-                                                <option value="360">6 hours</option>
-                                                <option value="720">12 hours</option>
+                                            <select class="form-select form-select-lg" id="intervalUnit" name="intervalUnit">
+                                                <option value="1">Every 1 minutes</option>
+                                                <option value="15">Every 15 minutes</option>
+                                                <option value="30">Every 30 minutes</option>
+                                                <option value="60">Every hour</option>
+                                                <option value="120">Every 2 hours</option>
+                                                <option value="360">Every 6 hours</option>
                                             </select>
                                         </div>
-                                        
-                                        <div class="form-group">
-                                            <label for="endTime" class="form-label fw-bold">
-                                                <i class="fas fa-flag-checkered me-2"></i>End after:
+                                        <div class="col-md-4">
+                                            <label class="form-label fw-bold">
+                                                <i class="fas fa-flag-checkered me-2"></i>Duration
                                             </label>
-                                            <select class="form-select" id="endTime" name="endTime">
-                                                <option value="never">Never</option>
-                                                <option value="24">24 hours</option>
-                                                <option value="48">48 hours</option>
-                                                <option value="72">72 hours</option>
-                                                <option value="168">1 week</option>
+                                            <select class="form-select form-select-lg" id="endTime" name="endTime">
+                                                <option value="never">Run indefinitely</option>
+                                                <option value="24">For 24 hours</option>
+                                                <option value="48">For 48 hours</option>
+                                                <option value="168">For 1 week</option>
                                             </select>
                                         </div>
                                     </div>
                                 </div>
 
                                 <!-- Daily Schedule Options -->
-                                <div id="dailyOptions" class="schedule-options" style="display: none;">
-                                    <input type="time" class="form-control" id="dailyTime" name="dailyTime">
+                                <div id="dailyOptions" class="schedule-options bg-white p-4 rounded shadow-sm" style="display: none;">
+                                    <label class="form-label fw-bold mb-3">
+                                        <i class="fas fa-clock me-2"></i>Select Time
+                                    </label>
+                                    <input type="time" class="form-control form-control-lg" id="dailyTime" name="dailyTime">
                                 </div>
 
                                 <!-- Weekly Schedule Options -->
-                                <div id="weeklyOptions" class="schedule-options" style="display: none;">
-                                    <div class="week-days-selector mb-3">
-                                        {% for day in ['Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat', 'Sun'] %}
-                                        <div class="form-check form-check-inline">
+                                <div id="weeklyOptions" class="schedule-options bg-white p-4 rounded shadow-sm" style="display: none;">
+                                    <label class="form-label fw-bold mb-3">
+                                        <i class="fas fa-calendar-week me-2"></i>Select Days & Time
+                                    </label>
+                                    <div class="week-days-selector mb-4">
+                                        <div class="d-flex gap-2 flex-wrap">
+                                            {% for day in ['Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat', 'Sun'] %}
                                             <input type="checkbox" class="btn-check" id="day{{ day }}" name="weekDays" value="{{ day }}">
-                                            <label class="btn btn-outline-secondary" for="day{{ day }}">{{ day }}</label>
+                                            <label class="btn btn-outline-primary px-4" for="day{{ day }}">{{ day }}</label>
+                                            {% endfor %}
                                         </div>
-                                        {% endfor %}
                                     </div>
-                                    <input type="time" class="form-control" id="weeklyTime" name="weeklyTime">
+                                    <input type="time" class="form-control form-control-lg" id="weeklyTime" name="weeklyTime">
                                 </div>
                             </div>
                         </div>
                     </div>
-
                     <div class="text-center mt-4">
                         <button type="submit" class="btn btn-primary btn-lg px-5">
                             <i class="fas fa-search me-2"></i>Find Deals
@@ -311,32 +316,20 @@ document.addEventListener('DOMContentLoaded', function() {
         {% endif %}
     });
 </script>
-
 <script>
-    document.getElementById('scheduleType').addEventListener('change', function() {
-        const scheduleDetails = document.getElementById('scheduleDetails');
-        const dailyOptions = document.getElementById('dailyOptions');
-        const weeklyOptions = document.getElementById('weeklyOptions');
+document.querySelectorAll('input[name="scheduleType"]').forEach(radio => {
+    radio.addEventListener('change', function() {
+        // Hide all schedule options first
+        document.querySelectorAll('.schedule-options').forEach(opt => {
+            opt.style.display = 'none';
+        });
         
-        switch(this.value) {
-            case 'none':
-                scheduleDetails.style.display = 'none';
-                break;
-            case 'hourly':
-                scheduleDetails.style.display = 'none';
-                break;
-            case 'daily':
-                scheduleDetails.style.display = 'block';
-                dailyOptions.style.display = 'block';
-                weeklyOptions.style.display = 'none';
-                break;
-            case 'weekly':
-                scheduleDetails.style.display = 'block';
-                dailyOptions.style.display = 'none';
-                weeklyOptions.style.display = 'block';
-                break;
+        // Show the selected option
+        if (this.checked) {
+            document.getElementById(this.value + 'Options').style.display = 'block';
         }
     });
+});
 </script>
 
 {% endblock %}
