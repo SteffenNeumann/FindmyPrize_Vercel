@@ -16,7 +16,7 @@
    
         <div class="container   mb-5">
             <div class="card-body p-4">
-                <form method="POST" action="{{ url_for('views.create_schedule') }}" class="needs-validation" novalidate>
+                <form method="POST" class="needs-validation" novalidate>
                     <div class="row g-4">
                         <div class="col-md-6">
                             <div class="form-floating mb-3">
@@ -142,10 +142,14 @@
                         </div>
                     </div>
                     <div class="text-center mt-4">
-                        <button type="submit" class="btn btn-primary btn-lg px-5">
+                        <button type="submit" class="btn btn-primary btn-lg px-5 me-3">
                             <i class="fas fa-search me-2"></i>Find Deals
                         </button>
+                        <button type="submit" formaction="{{ url_for('views.create_schedule') }}" class="btn btn-success btn-lg px-5">
+                            <i class="fas fa-clock me-2"></i>Schedule Deals
+                        </button>
                     </div>
+                    
                 </form>
             </div>
         </div>
