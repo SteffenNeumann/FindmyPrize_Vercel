@@ -146,7 +146,7 @@
                             <i class="fas fa-search me-2"></i>Find Deals
                         </button>
                         <button type="submit" formaction="{{ url_for('views.create_schedule') }}" class="btn btn-success btn-lg px-5">
-                            <i class="fas fa-clock me-2"></i>Schedule Deals
+                            <i class="fas fa-clock me-2"></i>Schedule Search
                         </button>
                     </div>
                     
@@ -154,50 +154,34 @@
             </div>
         </div>
    
-
     <!-- Results Display Section -->
     <div class="container mt-5">
-        <div id="results">
-            {% if results %}
-                <div class="results-container">
-                    {% if results|length == 0 %}
-                        <div class="alert alert-primary border-0 shadow-sm">
-                            <i class="fas fa-info-circle me-2"></i>
-                            No deals found matching your search criteria
+        {% if results %}
+        <div class="results-container">
+            <h3 class="mb-4"><i class="fas fa-tags text-primary"></i> Latest Findings</h3>
+            <div class="row g-4">
+                {% for deal in results %}
+                <div class="col-md-4">
+                    <div class="card h-100 shadow-sm hover-effect border-0">
+                        <div class="card-header bg-primary text-white">
+                            <i class="fas fa-store me-2"></i>
+                            {{ deal['store'] }}
                         </div>
-                    {% else %}
-                        <h3 class="mb-4"><i class="fas fa-tags text-primary"></i> Latest Findings</h3>
-                        <div class="row g-4">
-                            {% for result in results %}
-                                {% for deal in result.split('\n') %}
-                                    {% if deal %}
-                                        <div class="col-md-4">
-                                            <div class="card h-100 shadow-sm hover-effect border-0">
-                                                <div class="card-header bg-primary text-white d-flex align-items-center">
-                                                    <i class="fas fa-star me-2"></i>
-                                                    <span>New Deal Found</span>
-                                                </div>
-                                                <div class="card-body">
-                                                    <h5 class="card-title text-primary">{{ deal.replace('\u20ac', '€') }}</h5>
-                                                    <div class="mt-3">
-                                                        <small class="text-muted">
-                                                            <i class="far fa-clock me-1"></i>
-                                                            {{ moment().format('MMMM Do YYYY, h:mm:ss a') }}
-                                                        </small>
-                                                    </div>
-                                                </div>
-                                            </div>
-                                        </div>
-                                    {% endif %}
-                                {% endfor %}
-                            {% endfor %}
+                        <div class="card-body">
+                            <h5 class="card-title">{{ deal['product_name'] }}</h5>
+                            <p>Current Price: €{{ "%.2f"|format(deal['price']) }}</p>
+                            <p>Target Price: €{{ "%.2f"|format(deal['target_price']) }}</p>
+                            <small class="text-muted">
+                                <i class="far fa-clock me-1"></i>
+                                {{ moment(deal['timestamp']).fromNow() }}
+                            </small>
                         </div>
-                    {% endif %}
+                    </div>
                 </div>
-            {% endif %}
+                {% endfor %}            </div>
         </div>
+        {% endif %}
     </div>
-
     <div id="searchStatus" class="alert alert-primary d-none">
         <div class="d-flex align-items-center justify-content-center">
             <div class="spinner-border spinner-border-sm me-3"></div>
@@ -243,18 +227,21 @@
                         </div>
                         <div class="card-body">
                             {% for item in deal_data %}
-                                {% if item.strip() %}
-                                    {% set formatted_item = item|regex_replace('\\\\u20ac', '€')|regex_replace('Deal alert! ', '') %}
-                                    <p class="card-text">
-                                        <strong><i class="fas fa-store"></i> Store:</strong> 
-                                        {{ formatted_item.split('!')[0] }}!
-                                    </p>
+                            {% if item.strip() %}
+                                {% set formatted_item = item|regex_replace('\\\\u20ac', '€')|regex_replace('Deal alert! ', '') %}
+                                <p class="card-text">
+                                    <strong><i class="fas fa-store"></i> Store:</strong> 
+                                    {{ formatted_item }}
+                                </p>
+                                {% if 'Target price: ' in formatted_item %}
                                     <p class="card-text">
                                         <strong><i class="fas fa-tag"></i> Price:</strong> 
                                         {{ formatted_item.split('Target price: ')[1].strip() }}
                                     </p>
                                 {% endif %}
+                            {% endif %}
                             {% endfor %}
+                        
                             <p class="card-text">
                                 <small class="text-muted">
                                     <i class="far fa-clock"></i> 

@@ -18,82 +18,81 @@ from .models import User
 
 views = Blueprint('views', __name__)
 
-def geocode_with_retry(address, max_attempts=5):
-    geolocator = Nominatim(user_agent="FindmyPrize_Flask")
+def geocode_with_retry(location_string, max_attempts=5, initial_delay=1):
+    geolocator = Nominatim(user_agent="FindmyPrize_Flask", timeout=10)
+    
     for attempt in range(max_attempts):
         try:
-            location = geolocator.geocode(address, timeout=10)
+            location = geolocator.geocode(location_string)
             if location:
                 return location
         except GeocoderTimedOut:
-            if attempt < max_attempts - 1:
-                time.sleep(2 ** attempt)
+            delay = initial_delay * (2 ** attempt)  # Exponential backoff
+            time.sleep(delay)
+            continue
+    
+    flash(f'Location service temporarily unavailable. Please try again.', category='error')
     return None
 
 @views.route('/', methods=['GET', 'POST'])
 @login_required
 def home():
+    # Initialize variables
+    city = current_user.city
+    country = current_user.country
+    
     # Load saved searches for the user
     saved_searches = SavedSearch.query.filter_by(user_id=current_user.id).order_by(SavedSearch.date_created.desc()).first()
     saved_deals = ScraperResult.query.filter_by(user_id=current_user.id).order_by(ScraperResult.id.desc()).all()
     
     if request.method == 'POST':
-        city = current_user.city
-        country=current_user.country
         product = request.form.get('product')
         price = request.form.get('price').replace(',', '.')
         save_search = request.form.get('saveSearch') == 'on'
         email_notification = request.form.get('emailNotification') == 'on'
-        print(f"Received POST request with product: {product}, price: {price}, city: {city}, country: {country}")
-        # Save the search if checkbox is checked
-        if save_search:
-            saved_search = SavedSearch(
-                user_id=current_user.id,
-                product=product,
-                target_price=float(price),
-                city=city,
-                country=country,
-                email_notification=email_notification
-            )
-            db.session.add(saved_search)
-            db.session.commit()
-            
+
         if city and country and product and price:
-            location_string = f"{city}, {country}"
-            geolocator = Nominatim(user_agent="FindmyPrize_Flask", timeout=10)
+            print(f"Received POST request with product: {product}, price: {price}, city: {city}, country: {country}")
+            if save_search:
+                saved_search = SavedSearch(
+                    user_id=current_user.id,
+                    product=product,
+                    target_price=float(price),
+                    city=city,
+                    country=country,
+                    email_notification=email_notification
+                )
+                db.session.add(saved_search)
+                db.session.commit()
             
-            try:
-                loc = geolocator.geocode(location_string)
-                if loc and hasattr(loc, 'longitude') and hasattr(loc, 'latitude'):
-                    results = run_scraper(city, country, product, float(price), email_notification)
-                    
-                    # Store results in database only if deals were found
-                    if results:
-                        scraper_result = ScraperResult(
-                            data=json.dumps(results),
-                            user_id=current_user.id,
-                            product=product,
-                            target_price=float(price),
-                            city=city,
-                            country=country,
-                            email_notification=email_notification
-                            )
-                        db.session.add(scraper_result)
-                        db.session.commit()
-                    else:
-                        flash('No deals found matching your criteria', category='error')
-                        return redirect(url_for('views.home'))
-                    
-                    return render_template('home.html', user=current_user, deals=saved_deals, results=results)
-                else:
-                    flash(f'Invalid location data for {location_string}', category='error')
-            except GeocoderTimedOut:
-                flash('Geocoding service timed out', category='error')
-    
-    return render_template('home.html', 
-                         user=current_user, 
-                         deals=saved_deals, 
-                         saved_search=saved_searches)
+            results = run_scraper(city, country, product, float(price), email_notification)
+            # Results are now properly structured dictionaries
+            if results:
+                for result in results:
+                    scraper_result = ScraperResult(
+                        store=result['store'],
+                        price=result['price'],
+                        product=result['product_name'],
+                        target_price=float(price),
+                        city=city,
+                        country=country,
+                        email_notification=email_notification,
+                        user_id=current_user.id,
+                        data=json.dumps(result)
+                    )
+                    db.session.add(scraper_result)
+                db.session.commit()
+            
+            return render_template('home.html',
+                user=current_user,
+                results=results,  # This will now contain properly structured data
+                saved_searches=saved_searches,
+                saved_deals=saved_deals)
+
+    return render_template('home.html',
+        user=current_user,
+        deals=saved_deals,
+        saved_search=saved_searches)
 @views.route('/delete-note', methods=['POST'])
 def delete_note():  
      note = json.loads(request.data) # this function expects a JSON from the INDEX.js file 

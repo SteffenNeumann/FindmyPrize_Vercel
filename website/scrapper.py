@@ -55,21 +55,73 @@ def run_scraper(city, country, product, target_price, should_send_email, user_id
             server.sendmail(sender_email, receiver_email, text)
             server.quit()
 
-    def log_deal(store, price, product_name, data):
+    class DealFinding:
+        def __init__(self, store, price, product_name, original_price=None, discount=None):
+            self.store = store
+            self.price = price
+            self.product_name = product_name
+            self.original_price = original_price
+            self.discount = discount
+            self.timestamp = datetime.now()
 
-        scraper_result = ScraperResult(
+    collected_findings = []
+
+    def format_email_content(findings):
+        email_content = f"""
+        🎯 Deal Alert Summary for {product}
+        📍 Location: {city}, {country}
+        💰 Target Price: €{target_price:.2f}
+        
+        Found Deals:
+        """
+        for finding in findings:
+            email_content += f"""
+            🏪 {finding.store}
+            📦 {finding.product_name}
+            💶 Current Price: €{finding.price:.2f}
+            ⏰ Found at: {finding.timestamp.strftime('%Y-%m-%d %H:%M:%S')}
+            {'=' * 50}
+            """
+        return email_content
+
+    def log_deal(store, price, product_name, data):
+        # Check if this exact deal already exists in collected_findings
+        for finding in collected_findings:
+            if (finding.store == store and 
+                finding.price == price and 
+                finding.product_name == product_name):
+                return  # Skip if duplicate
+            
+        # If not duplicate, add to collected_findings
+        finding = DealFinding(store, price, product_name)
+        collected_findings.append(finding)
+    
+        # Check if result already exists in database
+        existing_result = ScraperResult.query.filter_by(
             store=store,
             price=price,
             product=product_name,
             target_price=target_price,
             city=city,
             country=country,
-            email_notification=should_send_email,
-            user_id=user_id,
-            data=data
-        )
-        db.session.add(scraper_result)
-        db.session.commit()
+            user_id=user_id
+        ).first()
+    
+        if not existing_result:
+            scraper_result = ScraperResult(
+                store=store,
+                price=price,
+                product=product_name,
+                target_price=target_price,
+                city=city,
+                country=country,
+                email_notification=should_send_email,
+                user_id=user_id,
+                data=data,
+                timestamp=finding.timestamp
+            )
+            db.session.add(scraper_result)
+            db.session.commit()
 
     @dataclass
     class Product:
@@ -117,14 +169,12 @@ def run_scraper(city, country, product, target_price, should_send_email, user_id
                                     price_text.replace("€", "").replace(",", ".").strip()
                                 )
                                 if price_value <= target_price:
-                                    subject = "Deal Alert!"
                                     product_name_element = product_element.query_selector(
                                         ".card__title"
                                     )
                                     product_name = product_name_element.inner_text().strip() if product_name_element else "Unknown Product"
 
                                     message = f"Deal alert! {store} offers {product_name} for {price_text}! (Target price: €{target_price:.2f})"
-                                    send_email(subject, message, should_send_email)
                                     log_deal(store, price_value, product_name, message)
                                     output += message + "\n"
                             except ValueError:
@@ -137,4 +187,22 @@ def run_scraper(city, country, product, target_price, should_send_email, user_id
             results.append(output)
         browser.close()
 
-    return results
+    # After collecting all findings, send one consolidated email
+    if collected_findings and should_send_email:
+        email_content = format_email_content(collected_findings)
+        subject = f"Deal Alert Summary - {len(collected_findings)} deals found for {product}!"
+        send_email(subject, email_content, should_send_email)
+
+    # Format results for web display
+    formatted_results = []
+    for finding in collected_findings:
+        formatted_deal = {
+            'store': finding.store,
+            'product_name': finding.product_name,
+            'price': finding.price,
+            'timestamp': finding.timestamp,
+            'target_price': target_price
+        }
+        formatted_results.append(formatted_deal)
+
+    return formatted_results   

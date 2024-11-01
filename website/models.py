@@ -52,6 +52,7 @@ class ScraperResult(db.Model):
     country = db.Column(db.String(100))
     email_notification = db.Column(db.Boolean, default=True)
     user = db.relationship('User')
+    timestamp = db.Column(db.DateTime, default=lambda: datetime.now(timezone.utc))
 
 class ScraperSchedule(db.Model):
     id = db.Column(db.Integer, primary_key=True)
