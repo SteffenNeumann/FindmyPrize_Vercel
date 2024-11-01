@@ -226,29 +226,29 @@
                             </form>
                         </div>
                         <div class="card-body">
-                            {% for item in deal_data %}
-                            {% if item.strip() %}
-                                {% set formatted_item = item|regex_replace('\\\\u20ac', '€')|regex_replace('Deal alert! ', '') %}
-                                <p class="card-text">
-                                    <strong><i class="fas fa-store"></i> Store:</strong> 
-                                    {{ formatted_item }}
+                            <h5 class="card-title">{{ deal.product_name }}</h5>
+                            <div class="deal-details">
+                                <p class="mb-2">
+                                    <i class="fas fa-store me-2"></i>
+                                    <strong>Store:</strong> {{ deal.store }}
                                 </p>
-                                {% if 'Target price: ' in formatted_item %}
-                                    <p class="card-text">
-                                        <strong><i class="fas fa-tag"></i> Price:</strong> 
-                                        {{ formatted_item.split('Target price: ')[1].strip() }}
-                                    </p>
-                                {% endif %}
-                            {% endif %}
-                            {% endfor %}
-                        
-                            <p class="card-text">
+                                <p class="mb-2">
+                                    <i class="fas fa-tag me-2"></i>
+                                    <strong>Current Price:</strong> €{{ "%.2f"|format(deal.price if deal.price is not none else 0.00) }}
+                                </p>
+                                <p class="mb-2">
+                                    <i class="fas fa-bullseye me-2"></i>
+                                    <strong>Target Price:</strong> €{{ "%.2f"|format(deal.target_price if deal.target_price is not none else 0.00) }}
+                                </p>
+                            </div>
+                            <p class="card-text mt-3">
                                 <small class="text-muted">
-                                    <i class="far fa-clock"></i> 
-                                    {{ moment(deal.date_created).fromNow() }}
+                                    <i class="far fa-clock me-2"></i>
+                                    {{ moment(deal.timestamp).fromNow() }}
                                 </small>
                             </p>
                         </div>
+                        
                     </div>
                 </div>
             {% endif %}
