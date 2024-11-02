@@ -92,3 +92,38 @@ body {
     background-color: var(--bs-primary);
     color: white;
 }
+.stat-card {
+    transition: transform 0.2s;
+    border: 1px solid rgba(0,0,0,0.1);
+}
+.stat-card:hover {
+    transform: translateY(-3px);
+}
+.btn-group form {
+    margin: 0 2px;
+}
+.card {
+    border: none;
+    border-radius: 10px;
+}
+.table th {
+    border-top: none;
+    font-weight: 600;
+}
+.card-body {
+    padding: 2rem;
+}
+
+.stat-card {
+    transition: transform 0.2s;
+    border: 1px solid rgba(0,0,0,0.1);
+    height: 100%;
+    box-shadow: 0 2px 4px rgba(0,0,0,0.05);
+    margin: 0 auto;
+    max-width: 300px;
+}
+
+.location-settings {
+    max-width: 800px;
+    margin: 0 auto;
+}

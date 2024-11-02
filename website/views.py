@@ -246,6 +246,7 @@ def cancel_schedule(schedule_id):
 def scheduled_job(schedule_id):
     schedule = ScraperSchedule.query.get(schedule_id)
     current_time = datetime.datetime.now()
+    
     results = run_scraper(
         city=schedule.city,
         country=schedule.country,
@@ -279,7 +280,7 @@ def create_schedule():
     target_price = request.form.get('price').replace(',', '.')
     city = current_user.city
     country = current_user.country
-    email_notification = request.form.get('emailNotification') == 'on'
+    email_notification = True #request.form.get('emailNotification') == 'on'
 
     current_time = datetime.datetime.now()
     next_run_time = current_time + datetime.timedelta(minutes=interval)
@@ -384,3 +385,26 @@ def resume_schedule(schedule_id):
     
     flash('Schedule resumed successfully', category='success')
     return redirect(url_for('views.scheduler_status'))
+
+@views.route('/delete_schedule/<int:schedule_id>', methods=['POST'])
+@login_required
+def delete_schedule(schedule_id):
+    schedule = ScraperSchedule.query.get_or_404(schedule_id)
+    
+    if schedule.user_id != current_user.id:
+        flash('Unauthorized access', category='error')
+        return redirect(url_for('views.scheduler_status'))
+
+    # Remove from scheduler if job exists
+    job_id = f'schedule_{schedule_id}'
+    if job_id in [job.id for job in scheduler.get_jobs()]:
+        scheduler.remove_job(job_id)
+
+    # Delete the schedule from database
+    db.session.delete(schedule)
+    db.session.commit()
+
+    flash('Schedule deleted successfully', category='success')
+    return redirect(url_for('views.scheduler_status'))
+
+

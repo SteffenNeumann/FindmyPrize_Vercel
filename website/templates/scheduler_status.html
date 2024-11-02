@@ -1,145 +1,149 @@
 {% extends "base.html" %}
 {% block content %}
-<div class="container">
-    <!-- New User Data Section -->
-    <div class="card mb-4">
-        <div class="card-header bg-primary text-white">
-            <h3>User Profile</h3>
+<div class="container-fluid px-4">
+    <div class="container-fluid">
+        <div class="row mb-4">
+            <div class="col-12">
+                <h1 class="display-4 mb-4">Dashboard</h1>
+            </div>
         </div>
-        <div class="card-body">
-            <div class="row">
-                <div class="col-md-6">
-                    <div class="user-location mb-3">
-                        <h5>Location Settings</h5>
-                        <form action="{{ url_for('views.update_location') }}" method="POST" class="d-flex align-items-center">
-                            <input type="text" name="city" value="{{ user.city }}" class="form-control mr-2">
-                            <input type="text" name="country" value="{{ user.country }}" class="form-control mr-2">
-                            <button type="submit" class="btn btn-success">Update Location</button>
-                        </form>
-                    </div>
-                    <div class="user-stats">
-                        <h5>Account Statistics</h5>
-                        <ul class="list-group">
-                            <li class="list-group-item d-flex justify-content-between align-items-center">
-                                Member Since
-                                <span class="badge badge-primary badge-pill">{{ user.date_joined.strftime('%B %d, %Y') }}</span>
-                            </li>
-                            <li class="list-group-item d-flex justify-content-between align-items-center">
-                                Successful Searches
-                                <span class="badge badge-success badge-pill">{{ successful_searches|default(0) }}</span>
-                            </li>
-                            <li class="list-group-item d-flex justify-content-between align-items-center">
-                                Active Schedules
-                                <span class="badge badge-info badge-pill">{{ scheduler_info|length }}</span>
-                            </li>
-                            <li class="list-group-item d-flex justify-content-between align-items-center">
-                                Deals Found
-                                <span class="badge badge-warning badge-pill">{{ deals_found|default(0) }}</span>
-                            </li>
-                            <li class="list-group-item d-flex justify-content-between align-items-center">
-                                Email Notifications Sent
-                                <span class="badge badge-secondary badge-pill">{{ notifications_sent|default(0) }}</span>
-                            </li>
-                        </ul>
-                    </div>
-                </div>
-                <div class="col-md-6">
-                    
-                    <div class="notification-preferences">
-                        <h5>Notification Preferences</h5>
-                        <form action="{{ url_for('views.update_preferences') }}" method="POST">
-                            <div class="custom-control custom-switch mb-2">
-                                <input type="checkbox" class="custom-control-input" id="emailNotifications" name="emailNotification" checked>
-                                <label class="custom-control-label" for="emailNotifications">Email Notifications</label>
+
+        <div class="card mb-4 w-100">
+            <div class="card-header">
+                <h2 class="h4 m-0">Profile Settings</h2>
+            </div>
+            <div class="card-body">
+                <div class="row">
+                    <div class="col-md-8">
+                        <div class="user-stats">
+                            <h3 class="h5 mb-4">Account Overview</h3>
+                            <div class="row">
+                                <div class="col-md-3 mb-3">
+                                    <div class="card bg-light h-100">
+                                        <div class="card-body text-center d-flex flex-column ">
+                                            <i class="fas fa-user-clock fa-2x text-primary mb-2"></i>
+                                            <h6 class="stat-title">Member Since</h6>
+                                            <div class="stat-value">
+                                                <span class="h4">{{ user.date_joined.strftime('%b %Y') }}</span>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="col-md-3 mb-3">
+                                    <div class="card bg-light h-100">
+                                        <div class="card-body text-center d-flex flex-column ">
+                                            <i class="fas fa-calendar-check fa-2x text-success mb-2"></i>
+                                            <h6 class="text-muted">Active Schedules</h6>
+                                            <h4 class="mb-0">{{ scheduler_info|length }}</h2>
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="col-md-3 mb-3">
+                                    <div class="card bg-light h-100">
+                                        <div class="card-body text-center d-flex flex-column ">
+                                            <i class="fas fa-search fa-2x text-info mb-2"></i>
+                                            <h6 class="text-muted">Successful Searches</h6>
+                                            <h4 class="mb-0">{{ successful_searches|default(0) }}</h2>
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="col-md-3 mb-3">
+                                    <div class="card bg-light h-100">
+                                        <div class="card-body text-center d-flex flex-column ">
+                                            <i class="fas fa-tags fa-2x text-warning mb-2"></i>
+                                            <h6 class="text-muted">Deals Found</h6>
+                                            <h4 class="mb-0">{{ deals_found|default(0) }}</h2>
+                                        </div>
+                                    </div>
+                                </div>
                             </div>
-                            <div class="custom-control custom-switch mb-2">
-                                <input type="checkbox" class="custom-control-input" id="browserNotifications" name="browser_notifications">
-                                <label class="custom-control-label" for="browserNotifications">Browser Notifications</label>
-                            </div>
-                            <button type="submit" class="btn btn-primary">Save Preferences</button>
-                        </form>
+                        </div>
+                    </div>
+                    <div class="col-md-4">
+                        <div class="location-settings">
+                            <h3 class="h5 mb-4">Location Settings</h3>
+                            <form action="{{ url_for('views.update_location') }}" method="POST">
+                                <div class="form-group mb-3">
+                                    <label for="city">City</label>
+                                    <input type="text" id="city" name="city" value="{{ user.city }}" class="form-control">
+                                </div>
+                                <div class="form-group mb-3">
+                                    <label for="country">Country</label>
+                                    <input type="text" id="country" name="country" value="{{ user.country }}" class="form-control">
+                                </div>
+                                <button type="submit" class="btn btn-primary w-100">Update Location</button>
+                            </form>
+                        </div>
                     </div>
                 </div>
             </div>
         </div>
     </div>
-    <!-- Original Content Follows -->
-    <h2>All Schedules</h2>
-    <div class="table-responsive">
-        <table class="table table-hover">
-            <thead class="thead-dark">
-                <tr>
-                    <th>Product</th>
-                    <th>Interval</th>
-                    <th>Target Price</th>
-                    <th>Location</th>
-                    <th>Last Run</th>
-                    <th>Next Run</th>
-                    <th>Status</th>
-                    <th>Notifications</th>
-                    <th>Actions</th>
-                </tr>
-            </thead>
-            <tbody>
-                {% for schedule in scheduler_info %}
-                <tr>
-                    <td>{{ schedule.product }}</td>
-                    <td>{{ schedule.interval }}</td>
-                    <td>${{ schedule.target_price }}</td>
-                    <td>{{ schedule.location }}</td>
-                    <td class="last-run" data-timestamp="{{ schedule.last_run }}">
-                        {{ schedule.last_run|default('Pending first run', true) }}
-                    </td>
-                    <td class="next-run" data-timestamp="{{ schedule.next_run }}">
-                        {{ schedule.next_run|default('Scheduled', true) }}
-                    </td>
-                    <td>
-                        <span class="badge {% if schedule.active %}badge-success{% else %}badge-secondary{% endif %}">
-                            {{ 'Active' if schedule.active else 'Pending' }}
-                        </span>
-                    </td>
-                    <td>{{ schedule.notifications }}</td>
-                    <td>
-                        <div class="btn-group" role="group">
-                            <form action="{{ url_for('views.cancel_schedule', schedule_id=schedule.id) }}" method="POST" class="mr-2">
-                                <button type="submit" class="btn btn-danger btn-sm">Pause</button>
-                            </form>
-                            <form action="{{ url_for('views.resume_schedule', schedule_id=schedule.id) }}" method="POST">
-                                <button type="submit" class="btn btn-primary btn-sm">Resume</button>
-                            </form>
-                            
-                        </div>
-                    </td>
-                </tr>
-                {% endfor %}
-            </tbody>
-        </table>
+
+    <!-- Schedules Table -->
+    <div class="card shadow-sm">
+        <div class="card-header bg-white d-flex justify-content-between align-items-center">
+            <h5 class="m-0">Active Schedules</h5>
+            <form action="{{ url_for('views.cleanup_schedules') }}" method="POST" class="m-0">
+                <button type="submit" class="btn btn-outline-danger btn-sm">
+                    <i class="fas fa-broom me-1"></i> Clean Up Inactive
+                </button>
+            </form>
+        </div>
+        <div class="card-body">
+            <div class="table-responsive">
+                <table class="table table-hover align-middle">
+                    <thead>
+                        <tr>
+                            <th>Product</th>
+                            <th>Interval</th>
+                            <th>Target Price</th>
+                            <th>Location</th>
+                            <th>Status</th>
+                            <th>Actions</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for schedule in scheduler_info %}
+                        <tr>
+                            <td>{{ schedule.product }}</td>
+                            <td>{{ schedule.interval }}</td>
+                            <td>${{ schedule.target_price }}</td>
+                            <td>{{ schedule.location }}</td>
+                            <td>
+                                <span class="badge rounded-pill bg-{{ 'success' if schedule.active else 'secondary' }}">
+                                    {{ 'Active' if schedule.active else 'Paused' }}
+                                </span>
+                            </td>
+                            <td>
+                                <div class="btn-group">
+                                    {% if schedule.active %}
+                                    <form action="{{ url_for('views.cancel_schedule', schedule_id=schedule.id) }}" method="POST" class="d-inline">
+                                        <button type="submit" class="btn btn-sm btn-outline-warning">
+                                            <i class="fas fa-pause"></i>
+                                        </button>
+                                    </form>
+                                    {% else %}
+                                    <form action="{{ url_for('views.resume_schedule', schedule_id=schedule.id) }}" method="POST" class="d-inline">
+                                        <button type="submit" class="btn btn-sm btn-outline-success">
+                                            <i class="fas fa-play"></i>
+                                        </button>
+                                    </form>
+                                    {% endif %}
+                                    <form action="{{ url_for('views.delete_schedule', schedule_id=schedule.id) }}" method="POST" class="d-inline">
+                                        <button type="submit" class="btn btn-sm btn-outline-danger">
+                                            <i class="fas fa-trash"></i>
+                                        </button>
+                                    </form>
+                                </div>
+                            </td>
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+        </div>
     </div>
 </div>
-<div class="container mt-3">
-    <form action="{{ url_for('views.cleanup_schedules') }}" method="POST">
-        <button type="submit" class="btn btn-warning">Clean Up Inactive Schedules</button>
-    </form>
-</div>
 
-<script>
-    function updateTimes() {
-        document.querySelectorAll('.last-run, .next-run').forEach(element => {
-            const timestamp = element.getAttribute('data-timestamp');
-            if (timestamp) {
-                const date = new Date(timestamp);
-                element.textContent = date.toLocaleString();
-            }
-        });
-    }
-
-    // Update times every 5 seconds instead of every second
-    setInterval(updateTimes, 5000);
-    updateTimes();
-
-    // Refresh page every minute instead of 30 seconds
-    setTimeout(function(){
-        window.location.reload();
-    }, 60000);
-</script>
 {% endblock %}
