@@ -246,7 +246,6 @@ def cancel_schedule(schedule_id):
 def scheduled_job(schedule_id):
     schedule = ScraperSchedule.query.get(schedule_id)
     current_time = datetime.datetime.now()
-    
     results = run_scraper(
         city=schedule.city,
         country=schedule.country,
@@ -280,7 +279,7 @@ def create_schedule():
     target_price = request.form.get('price').replace(',', '.')
     city = current_user.city
     country = current_user.country
-    email_notification = True #request.form.get('emailNotification') == 'on'
+    email_notification = request.form.get('emailNotification') == 'on'
 
     current_time = datetime.datetime.now()
     next_run_time = current_time + datetime.timedelta(minutes=interval)
@@ -385,6 +384,7 @@ def resume_schedule(schedule_id):
     
     flash('Schedule resumed successfully', category='success')
     return redirect(url_for('views.scheduler_status'))
+
 
 @views.route('/delete_schedule/<int:schedule_id>', methods=['POST'])
 @login_required
