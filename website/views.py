@@ -87,7 +87,7 @@ def home():
                 user=current_user,
                 results=results,  # This will now contain properly structured data
                 saved_searches=saved_searches,
-                saved_deals=saved_deals)
+                deals=saved_deals)
 
     return render_template('home.html',
         user=current_user,
@@ -243,37 +243,39 @@ def cancel_schedule(schedule_id):
                  flash('Schedule cancelled successfully', category='success')
                  return redirect(url_for('views.scheduler_status'))
 
-def scheduled_job(schedule_id):
-    schedule = ScraperSchedule.query.get(schedule_id)
-    current_time = datetime.datetime.now()
-    results = run_scraper(
-        city=schedule.city,
-        country=schedule.country,
-        product=schedule.product,
-        target_price=schedule.target_price,
-        email_notification=schedule.email_notification,
-        user_id=schedule.user_id
-    )
-    
-    schedule.last_run = current_time
-    schedule.next_run = current_time + datetime.timedelta(minutes=schedule.interval)
-    
-    if results:
-        scraper_result = ScraperResult(
-            data=json.dumps(results),
-            user_id=schedule.user_id,
-            product=schedule.product,
-            target_price=schedule.target_price,
+def scheduled_job(schedule_id, app):
+    with app.app_context():
+        schedule = ScraperSchedule.query.get(schedule_id)
+        current_time = datetime.datetime.now()
+        results = run_scraper(
             city=schedule.city,
             country=schedule.country,
-            email_notification=schedule.email_notification
+            product=schedule.product,
+            target_price=schedule.target_price,
+            should_send_email=schedule.email_notification,
+            user_id=schedule.user_id
         )
-        db.session.add(scraper_result)
-    db.session.commit()
-
+        
+        schedule.last_run = current_time
+        schedule.next_run = current_time + datetime.timedelta(minutes=schedule.interval)
+        
+        if results:
+            scraper_result = ScraperResult(
+                data=json.dumps(results),
+                user_id=schedule.user_id,
+                product=schedule.product,
+                target_price=schedule.target_price,
+                city=schedule.city,
+                country=schedule.country,
+                email_notification=schedule.email_notification
+            )
+            db.session.add(scraper_result)
+        db.session.commit()
 @views.route('/create-schedule', methods=['POST'])
 @login_required
 def create_schedule():
+    from flask import current_app
+    
     product = request.form.get('product')
     interval = int(request.form.get('intervalUnit', '60'))
     target_price = request.form.get('price').replace(',', '.')
@@ -300,11 +302,10 @@ def create_schedule():
     db.session.add(new_schedule)
     db.session.commit()
 
-    def job_wrapper():
-        scheduled_job(new_schedule.id)
-    
+    # Pass the app instance directly to the scheduled job
     scheduler.add_job(
-        func=job_wrapper,
+        func=scheduled_job,
+        args=[new_schedule.id, current_app._get_current_object()],
         trigger='interval',
         minutes=interval,
         id=f'schedule_{new_schedule.id}',
@@ -314,6 +315,35 @@ def create_schedule():
     
     flash('New schedule created and started successfully', category='success')
     return redirect(url_for('views.scheduler_status'))
+
+def scheduled_job(schedule_id, app):
+    with app.app_context():
+        schedule = ScraperSchedule.query.get(schedule_id)
+        current_time = datetime.datetime.now()
+        results = run_scraper(
+            city=schedule.city,
+            country=schedule.country,
+            product=schedule.product,
+            target_price=schedule.target_price,
+            should_send_email=schedule.email_notification,
+            user_id=schedule.user_id
+        )
+        
+        schedule.last_run = current_time
+        schedule.next_run = current_time + datetime.timedelta(minutes=schedule.interval)
+        
+        if results:
+            scraper_result = ScraperResult(
+                data=json.dumps(results),
+                user_id=schedule.user_id,
+                product=schedule.product,
+                target_price=schedule.target_price,
+                city=schedule.city,
+                country=schedule.country,
+                email_notification=schedule.email_notification
+            )
+            db.session.add(scraper_result)
+        db.session.commit()
 
 @views.route('/cleanup-schedules', methods=['POST'])
 @login_required
@@ -358,30 +388,31 @@ def update_preferences():
 @views.route('/resume_schedule/<int:schedule_id>', methods=['POST'])
 @login_required
 def resume_schedule(schedule_id):
-    schedule = ScraperSchedule.query.get_or_404(schedule_id)
+    from flask import current_app  # Add this import at the top of the function
     
+    schedule = ScraperSchedule.query.get_or_404(schedule_id)
     if schedule.user_id != current_user.id:
         flash('Unauthorized access', category='error')
         return redirect(url_for('views.scheduler_status'))
-    
+
     # Reactivate the schedule in database
     schedule.active = True
     current_time = datetime.datetime.now()
     next_run_time = current_time + datetime.timedelta(minutes=schedule.interval)
     schedule.next_run = next_run_time
     db.session.commit()
-    
+
     # Add job back to scheduler using the existing scheduled_job function
     scheduler.add_job(
         func=scheduled_job,
-        args=[schedule.id],
+        args=[schedule.id, current_app._get_current_object()],  # Add the app argument here
         trigger='interval',
         minutes=schedule.interval,
         id=f'schedule_{schedule.id}',
         replace_existing=True,
         next_run_time=next_run_time
     )
-    
+
     flash('Schedule resumed successfully', category='success')
     return redirect(url_for('views.scheduler_status'))
 
