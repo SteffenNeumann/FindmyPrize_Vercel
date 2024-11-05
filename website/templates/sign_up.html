@@ -1,68 +1,138 @@
-{% extends "base.html" %} {% block title %}Sign Up{% endblock %} {% block
-content %}
-<form method="POST">
-  <h3 align="center">Sign Up</h3>
-  <div class="form-group">
-    <label for="email">Email Address</label>
-    <input
-      type="email"
-      class="form-control"
-      id="email"
-      name="email"
-      placeholder="Enter email"
-    />
-  </div>
-  <div class="form-group">
-    <label for="firstName">First Name</label>
-    <input
-      type="text"
-      class="form-control"
-      id="firstName"
-      name="firstName"
-      placeholder="Enter first name"
-    />
-  </div>
-  <div class="form-group">
-    <label for="city">City</label>
-    <input
-      type="text"
-      class="form-control"
-      id="city"
-      name="city"
-      placeholder="Enter your city"
-    />
-  </div>
-  <div class="form-group">
-    <label for="country">Country</label>
-    <input
-      type="text"
-      class="form-control"
-      id="country"
-      name="country"
-      placeholder="Enter your country"
-    />
-  </div>
-  <div class="form-group">
-    <label for="password1">Password</label>
-    <input
-      type="password"
-      class="form-control"
-      id="password1"
-      name="password1"
-      placeholder="Enter password"
-    />
-  </div>
-  <div class="form-group">
-    <label for="password2">Password (Confirm)</label>
-    <input
-      type="password"
-      class="form-control"
-      id="password2"
-      name="password2"
-      placeholder="Confirm password"
-    />
-  </div>
-  <br />
-  <button type="submit" class="btn btn-primary">Submit</button>
-</form>
+{% extends "base.html" %}
+{% block title %}Sign Up{% endblock %}
+
+{% block content %}
+<style>
+  .signup-container {
+      min-height: 100vh;
+      background: url('/static/groceries.png') center/cover no-repeat;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      padding: 20px;
+  }
+
+  .glass-card {
+      background: rgba(255, 255, 255, 0.15);
+      backdrop-filter: blur(10px);
+      border-radius: 15px;
+      padding: 25px;
+      box-shadow: 0 8px 32px 0 rgba(31, 38, 135, 0.37);
+      border: 1px solid rgba(255, 255, 255, 0.18);
+      width: 100%;
+      max-width: 800px;
+      display: flex;
+      gap: 20px;
+  }
+
+  .image-section {
+      flex: 1;
+      background: rgba(255, 255, 255, 0.1);
+      border-radius: 10px;
+      padding: 20px;
+      display: flex;
+      flex-direction: column;
+      justify-content: center;
+      align-items: center;
+      text-align: center;
+  }
+
+  .form-section {
+      flex: 1;
+      padding: 20px;
+  }
+
+  .hero-title {
+      color: white;
+      font-size: 2rem;
+      margin-bottom: 10px;
+      text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.3);
+  }
+
+  .hero-subtitle {
+      color: rgba(255, 255, 255, 0.9);
+      font-size: 1rem;
+      margin-bottom: 20px;
+  }
+
+  .form-control {
+      background: rgba(255, 255, 255, 0.2);
+      border: none;
+      border-radius: 8px;
+      padding: 10px;
+      color: #ffffff;
+      margin-bottom: 15px;
+  }
+
+  .form-control::placeholder {
+      color: rgba(255, 255, 255, 0.7);
+  }
+
+  .form-label {
+      color: #ffffff;
+      font-weight: 500;
+      margin-bottom: 5px;
+  }
+
+  .btn-signup {
+      width: 100%;
+      padding: 10px;
+      background: rgba(255, 255, 255, 0.25);
+      border: none;
+      border-radius: 8px;
+      color: #ffffff;
+      font-weight: 600;
+      transition: all 0.3s ease;
+  }
+
+  .btn-signup:hover {
+      background: rgba(255, 255, 255, 0.35);
+      transform: translateY(-2px);
+  }
+
+  @media (max-width: 768px) {
+      .glass-card {
+          flex-direction: column;
+          max-width: 400px;
+      }
+  }
+</style>
+
+<div class="signup-container">
+    <div class="glass-card">
+        <div class="image-section">
+            <h1 class="hero-title">Join Our Community</h1>
+            <p class="hero-subtitle">Start managing your grocery lists efficiently today</p>
+        </div>
+        <div class="form-section">
+            <form method="POST">
+                <div class="form-group">
+                    <label class="form-label" for="email">Email Address</label>
+                    <input type="email" class="form-control" id="email" name="email" placeholder="Enter your email" required>
+                </div>
+                <div class="form-group">
+                    <label class="form-label" for="firstName">First Name</label>
+                    <input type="text" class="form-control" id="firstName" name="firstName" placeholder="Enter your first name" required>
+                </div>
+                <div class="form-group">
+                    <label class="form-label" for="city">City</label>
+                    <input type="text" class="form-control" id="city" name="city" placeholder="Enter your city" required>
+                </div>
+                <div class="form-group">
+                    <label class="form-label" for="country">Country</label>
+                    <input type="text" class="form-control" id="country" name="country" placeholder="Enter your country" required>
+                </div>
+                <div class="form-group">
+                    <label class="form-label" for="password1">Password</label>
+                    <input type="password" class="form-control" id="password1" name="password1" placeholder="Create a password" required>
+                </div>
+                <div class="form-group">
+                    <label class="form-label" for="password2">Confirm Password</label>
+                    <input type="password" class="form-control" id="password2" name="password2" placeholder="Confirm your password" required>
+                </div>
+                <button type="submit" class="btn btn-signup">Create Account</button>
+            </form>
+        </div>
+    </div>
+</div>
 {% endblock %}
