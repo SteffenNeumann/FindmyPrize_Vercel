@@ -117,10 +117,17 @@
     <!-- Previous Deals Section -->
     <div class="container mb-5">
         <div class="card shadow-sm">
-            <!-- Previous Deals Header -->
-            <div class="card-header bg-white">
-                <h3 class="mb-0 text-secondary"><i class="fas fa-history me-2"></i>Frühere Angebote</h3>
-            </div>
+                    <!-- Previous Deals Header -->
+                    <div class="card-header bg-white d-flex justify-content-between align-items-center">
+                        <h3 class="mb-0 text-secondary"><i class="fas fa-history me-2"></i>Frühere Angebote</h3>
+                        {% if deals %}
+                        <form action="{{ url_for('views.clear_deals') }}" method="POST" class="d-inline">
+                            <button type="submit" class="btn btn-outline-danger btn-sm">
+                                <i class="fas fa-trash-alt me-2"></i>Clear All
+                            </button>
+                        </form>
+                        {% endif %}
+                    </div>
             <div class="card-body">
                 <!-- Your existing previous deals code -->
                 {% if deals %}
@@ -214,5 +221,35 @@ document.querySelectorAll('input[name="scheduleType"]').forEach(radio => {
     });
 });
 </script>
+<style>
+.container.mb-5:first-of-type {
+    background: linear-gradient(rgba(0, 0, 0, 0.7), rgba(0, 0, 0, 0.7)), url("{{ url_for('static', filename='groceries.png') }}") !important;
+    background-size: cover !important;
+    background-position: center !important;
+    min-height: 400px !important;
+    padding: 4rem !important;
+    border-radius: 15px !important;
+    margin-top: 20px !important;
+}
 
+.display-4 {
+    color: white !important;
+    text-shadow: 2px 2px 4px rgba(0,0,0,0.8) !important;
+    font-weight: 700 !important;
+}
+
+.lead {
+    color: #f8f9fa !important;
+    text-shadow: 1px 1px 3px rgba(0,0,0,0.9) !important;
+    font-weight: 500 !important;
+}
+
+.container {
+    background-color: rgba(255, 255, 255, 0.98) !important;
+    backdrop-filter: blur(10px) !important;
+    -webkit-backdrop-filter: blur(10px) !important;
+    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1) !important;
+}
+</style>
 {% endblock %}
+

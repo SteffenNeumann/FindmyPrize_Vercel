@@ -18,7 +18,7 @@ from .models import User
 
 views = Blueprint('views', __name__)
 # Global schedule time settings
-SCHEDULE_HOUR = 13  # Default 7 AM
+SCHEDULE_HOUR = 7  # Default 7 AM
 SCHEDULE_MINUTE = 0  # Default 0 minutes
 
 def geocode_with_retry(location_string, max_attempts=5, initial_delay=1):
