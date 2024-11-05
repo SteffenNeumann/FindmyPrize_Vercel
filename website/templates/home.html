@@ -193,7 +193,7 @@
     <div class="mt-5">
         <div class="d-flex justify-content-between align-items-center mb-4">
             <h2 class="mb-0"><i class="fas fa-history text-primary"></i> Previous Deals 
-                <span class="badge bg-primary rounded-pill">{{ deals|selectattr('data', 'string')|selectattr('data.strip()', 'string')|list|length }}</span>
+                <span class="badge bg-primary rounded-pill">{{ deals|length }}</span>
             </h2>
             <div class="btn-group h-100">
                 <a href="{{ url_for('views.export_deals') }}" class="btn btn-outline-primary d-flex align-items-center">
@@ -213,47 +213,36 @@
             {% for deal in deals %}
             {% set deal_data = deal.data.strip('[]"').split('\\n') %}
             {% if deal_data|join('')|trim() %}
-                <div class="col-md-4 mb-4">
-                    <div class="card h-100 shadow-sm">
-                        <div class="card-header d-flex justify-content-between align-items-center">
-                            <span><i class="fas fa-shopping-cart"></i> Deal #{{ deal.id }}</span>
+                <div class="col-md-3 mb-3">
+                    <div class="card h-100 shadow-sm hover-effect border-0">
+                        <div class="card-header bg-light d-flex justify-content-between align-items-center py-2">
+                            <div class="text-muted small">
+                                <i class="fas fa-store me-1"></i>
+                                {{ deal.store }}
+                            </div>
                             <form action="{{ url_for('views.delete_deal') }}" method="POST" class="d-inline">
                                 <input type="hidden" name="deal_id" value="{{ deal.id }}">
-                                <button type="submit" class="btn btn-sm btn-outline-danger" 
-                                        onclick="return confirm('Delete this deal?')">
+                                <button type="submit" class="btn btn-link btn-sm text-muted p-0" 
+                                    onclick="return confirm('Delete this deal?')">
                                     <i class="fas fa-trash"></i>
                                 </button>
                             </form>
                         </div>
-                        <div class="card-body">
-                            <h5 class="card-title">{{ deal.product_name }}</h5>
-                            <div class="deal-details">
-                                <p class="mb-2">
-                                    <i class="fas fa-store me-2"></i>
-                                    <strong>Store:</strong> {{ deal.store }}
-                                </p>
-                                <p class="mb-2">
-                                    <i class="fas fa-tag me-2"></i>
-                                    <strong>Current Price:</strong> €{{ "%.2f"|format(deal.price if deal.price is not none else 0.00) }}
-                                </p>
-                                <p class="mb-2">
-                                    <i class="fas fa-bullseye me-2"></i>
-                                    <strong>Target Price:</strong> €{{ "%.2f"|format(deal.target_price if deal.target_price is not none else 0.00) }}
-                                </p>
-                            </div>
-                            <p class="card-text mt-3">
-                                <small class="text-muted">
-                                    <i class="far fa-clock me-2"></i>
+                        <div class="card-body p-3">
+                            <h6 class="card-title text-truncate mb-3">{{ deal.product_name }}</h6>
+                            <div class="small">
+                                <p class="mb-1">Current: €{{ "%.2f"|format(deal.price if deal.price is not none else 0.00) }}</p>
+                                <p class="mb-2">Target: €{{ "%.2f"|format(deal.target_price if deal.target_price is not none else 0.00) }}</p>
+                                <span class="text-muted smaller">
+                                    <i class="far fa-clock me-1"></i>
                                     {{ moment(deal.timestamp).fromNow() }}
-                                </small>
-                            </p>
+                                </span>
+                            </div>
                         </div>
-                        
                     </div>
                 </div>
             {% endif %}
-            {% endfor %}
-        </div>
+            {% endfor %}        </div>
         {% else %}
         <div class="alert alert-info">
             <i class="fas fa-info-circle me-2"></i>

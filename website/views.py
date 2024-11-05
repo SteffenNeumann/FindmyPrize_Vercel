@@ -43,6 +43,8 @@ def home():
     
     # Load saved searches for the user
     saved_searches = SavedSearch.query.filter_by(user_id=current_user.id).order_by(SavedSearch.date_created.desc()).first()
+    
+    # Modify this line to include all necessary fields for the deals cards
     saved_deals = ScraperResult.query.filter_by(user_id=current_user.id).order_by(ScraperResult.id.desc()).all()
     
     if request.method == 'POST':
@@ -85,14 +87,16 @@ def home():
             
             return render_template('home.html',
                 user=current_user,
-                results=results,  # This will now contain properly structured data
+                results=results,
                 saved_searches=saved_searches,
-                deals=saved_deals)
+                deals=saved_deals,
+                is_previous_deal=True)  # Add this flag to differentiate styling
 
     return render_template('home.html',
         user=current_user,
         deals=saved_deals,
-        saved_search=saved_searches)
+        saved_search=saved_searches,
+        is_previous_deal=True)  # Add this flag to differentiate styling
 @views.route('/delete-note', methods=['POST'])
 def delete_note():  
      note = json.loads(request.data) # this function expects a JSON from the INDEX.js file 
@@ -217,11 +221,22 @@ def scheduler_status():
         }
         scheduler_info.append(job_info)
     
-    return render_template('scheduler_status.html', 
-                         user=current_user,
-                         scheduler_info=scheduler_info,
-                         active_jobs=active_jobs,
-                        )  
+    # Count successful searches from ScraperResult
+    successful_searches = ScraperResult.query.filter_by(user_id=current_user.id).count()
+    
+    # Count deals found (you may want to adjust this query based on your criteria)
+    deals_found = ScraperResult.query.filter_by(
+        user_id=current_user.id
+    ).count()
+
+    return render_template(
+        'scheduler_status.html',
+        user=current_user,
+        successful_searches=successful_searches,
+        deals_found=deals_found,
+        scheduler_info=scheduler_info,
+        active_jobs=active_jobs
+    )
 @views.route('/cancel-schedule/<int:schedule_id>', methods=['POST'])
 @login_required
 def cancel_schedule(schedule_id):

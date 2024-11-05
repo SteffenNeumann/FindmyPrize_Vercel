@@ -1,7 +1,9 @@
 alembic==1.13.3
+APScheduler==3.10.4
 blinker @ file:///home/conda/feedstock_root/build_artifacts/blinker_1715091184126/work
 click @ file:///home/conda/feedstock_root/build_artifacts/click_1692311806742/work
 Flask @ file:///home/conda/feedstock_root/build_artifacts/flask_1712667726126/work
+Flask-APScheduler==1.13.1
 Flask-Login @ file:///home/conda/feedstock_root/build_artifacts/flask-login_1699273405387/work
 Flask-Migrate==4.0.7
 Flask-Moment==1.0.6
@@ -9,6 +11,7 @@ Flask-SQLAlchemy @ file:///home/conda/feedstock_root/build_artifacts/flask-sqlal
 geographiclib @ file:///home/conda/feedstock_root/build_artifacts/geographiclib_1650904727084/work
 geopy @ file:///home/conda/feedstock_root/build_artifacts/geopy_1709140178986/work
 greenlet @ file:///Users/runner/miniforge3/conda-bld/greenlet_1726922212101/work
+gunicorn==23.0.0
 importlib_metadata @ file:///home/conda/feedstock_root/build_artifacts/importlib-metadata_1726082825846/work
 itsdangerous @ file:///home/conda/feedstock_root/build_artifacts/itsdangerous_1713372668944/work
 Jinja2 @ file:///home/conda/feedstock_root/build_artifacts/jinja2_1715127149914/work
@@ -17,8 +20,12 @@ MarkupSafe @ file:///Users/runner/miniforge3/conda-bld/markupsafe_1729351343187/
 packaging==24.1
 playwright==1.48.0
 pyee==12.0.0
+python-dateutil==2.9.0.post0
 python-dotenv==1.0.1
+pytz==2024.2
+six==1.16.0
 SQLAlchemy @ file:///Users/runner/miniforge3/conda-bld/sqlalchemy_1729066339957/work
 typing_extensions @ file:///home/conda/feedstock_root/build_artifacts/typing_extensions_1717802530399/work
+tzlocal==5.2
 Werkzeug @ file:///home/conda/feedstock_root/build_artifacts/werkzeug_1724330738730/work
 zipp @ file:///home/conda/feedstock_root/build_artifacts/zipp_1726248574750/work
