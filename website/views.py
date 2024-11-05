@@ -17,6 +17,9 @@ from . import scheduler
 from .models import User
 
 views = Blueprint('views', __name__)
+# Global schedule time settings
+SCHEDULE_HOUR = 13  # Default 7 AM
+SCHEDULE_MINUTE = 0  # Default 0 minutes
 
 def geocode_with_retry(location_string, max_attempts=5, initial_delay=1):
     geolocator = Nominatim(user_agent="FindmyPrize_Flask", timeout=10)
@@ -300,11 +303,11 @@ def create_schedule():
     activate_schedule = request.form.get('activateSchedule') == 'on'
     target_price = request.form.get('price').replace(',', '.')
     city = current_user.city
-    country = current_user.country
+    country =  current_user.country
     
     # Default values
     interval = 24*60  # 24 hours in minutes
-    schedule_time = datetime.time(7, 0)
+    schedule_time = datetime.time(SCHEDULE_HOUR, SCHEDULE_MINUTE)
     
     # For development testing
     if current_app.debug:
@@ -361,38 +364,38 @@ def create_schedule():
     
     flash('Schedule created successfully', category='success')
     return redirect(url_for('views.scheduler_status'))
-def scheduled_job(schedule_id, app):
-    with app.app_context():
-        schedule = ScraperSchedule.query.get(schedule_id)
-        current_time = datetime.datetime.now()
-        results = run_scraper(
-            city=schedule.city,
-            country=schedule.country,
-            product=schedule.product,
-            target_price=schedule.target_price,
-            should_send_email=schedule.email_notification,
-            user_id=schedule.user_id
-        )
+# def scheduled_job(schedule_id, app):
+#     with app.app_context():
+#         schedule = ScraperSchedule.query.get(schedule_id)
+#         current_time = datetime.datetime.now()
+#         results = run_scraper(
+#             city=schedule.city,
+#             country=schedule.country,
+#             product=schedule.product,
+#             target_price=schedule.target_price,
+#             should_send_email=schedule.email_notification,
+#             user_id=schedule.user_id
+#         )
         
-        schedule.last_run = current_time
-        schedule.next_run = current_time + datetime.timedelta(minutes=schedule.interval)
+#         schedule.last_run = current_time
+#         schedule.next_run = current_time + datetime.timedelta(minutes=schedule.interval)
         
-        if results and isinstance(results, list):
-            for result in results:
-                scraper_result = ScraperResult(
-                    store=result['store'],
-                    price=float(result['price']),
-                    product=result['product_name'],
-                    target_price=schedule.target_price,
-                    city=schedule.city,
-                    country=schedule.country,
-                    email_notification=True,
-                    user_id=schedule.user_id,
-                    data=json.dumps(result)
-                )
-                db.session.add(scraper_result)
+#         if results and isinstance(results, list):
+#             for result in results:
+#                 scraper_result = ScraperResult(
+#                     store=result['store'],
+#                     price=float(result['price']),
+#                     product=result['product_name'],
+#                     target_price=schedule.target_price,
+#                     city=schedule.city,
+#                     country=schedule.country,
+#                     email_notification=True,
+#                     user_id=schedule.user_id,
+#                     data=json.dumps(result)
+#                 )
+#                 db.session.add(scraper_result)
         
-        db.session.commit()
+#         db.session.commit()
 @views.route('/cleanup-schedules', methods=['POST'])
 @login_required
 def cleanup_schedules():

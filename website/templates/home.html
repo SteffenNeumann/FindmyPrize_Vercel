@@ -54,44 +54,51 @@
                     </div>
                     <!-- Schedule Section -->
                     <div class="schedule-section mt-4">
-                        <h5 class="mb-3"><i class="fas fa-clock text-primary"></i> Schedule Search</h5>
-                        <div class="card bg-light border-0">
+                        <div class="card bg-light border-0 shadow-sm">
+                            <div class="card-header bg-primary text-white">
+                                <h5 class="mb-0"><i class="fas fa-clock me-2"></i>Schedule Options</h5>
+                            </div>
                             <div class="card-body">
-                                <div class="form-check form-switch mb-3">
-                                    <input class="form-check-input" type="checkbox" id="activateSchedule" name="activateSchedule">
-                                    <label class="form-check-label" for="activateSchedule">
-                                        <i class="fas fa-calendar-check text-primary"></i> Activate Daily Search (07:00)
-                                    </label>
-                                </div>
-                                
-                                <!-- Development Testing Section -->
-                                {% if config.DEBUG %}
-                                <div class="mt-4 p-3 border-top">
-                                    <h6><i class="fas fa-tools text-warning"></i> Development Testing Options</h6>
-                                    <div class="row g-3">
-                                        <div class="col-md-6">
-                                            <label class="form-label">Custom Interval (minutes)</label>
-                                            <input type="number" class="form-control" id="customInterval" name="customInterval" min="1">
-                                        </div>
-                                        <div class="col-md-6">
-                                            <label class="form-label">Custom Time</label>
-                                            <input type="time" class="form-control" id="customTime" name="customTime">
+                                <div class="row">
+                                    <div class="col-md-6">
+                                        <div class="form-check form-switch mb-3">
+                                            <input class="form-check-input" type="checkbox" id="activateSchedule" name="activateSchedule">
+                                            <label class="form-check-label" for="activateSchedule">
+                                                <i class="fas fa-calendar-check me-2"></i>Daily Search at 07:00
+                                            </label>
                                         </div>
                                     </div>
+                                    
+                                    {% if config.DEBUG %}
+                                    <div class="col-md-6">
+                                        <div class="testing-options">
+                                            <div class="input-group mb-3">
+                                                <span class="input-group-text"><i class="fas fa-clock"></i></span>
+                                                <input type="number" class="form-control" id="customInterval" name="customInterval" min="1" placeholder="Interval (minutes)">
+                                                <input type="time" class="form-control" id="customTime" name="customTime">
+                                            </div>
+                                        </div>
+                                    </div>
+                                    {% endif %}
                                 </div>
-                                {% endif %}
                             </div>
                         </div>
                     </div>
-                    <div class="text-center mt-4">
-                        <button type="submit" class="btn btn-primary btn-lg px-5 me-3">
-                            <i class="fas fa-search me-2"></i>Find Deals
-                        </button>
-                        <button type="submit" formaction="{{ url_for('views.create_schedule') }}" class="btn btn-success btn-lg px-5">
-                            <i class="fas fa-clock me-2"></i>Schedule Search
-                        </button>
+
+                    <!-- Replace the existing buttons with this improved version -->
+                    <div class="action-buttons mt-4">
+                        <div class="d-flex justify-content-center gap-4">
+                            <button type="submit" class="btn btn-primary btn-lg px-5 d-flex align-items-center">
+                                <i class="fas fa-search me-2"></i>
+                                Search Now
+                            </button>
+                            <button type="submit" formaction="{{ url_for('views.create_schedule') }}" 
+                                    class="btn btn-outline-primary btn-lg px-5 d-flex align-items-center">
+                                <i class="fas fa-clock me-2"></i>
+                                Save Schedule
+                            </button>
+                        </div>
                     </div>
-                    
                 </form>
             </div>
         </div>
