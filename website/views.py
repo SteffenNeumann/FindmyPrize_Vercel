@@ -18,8 +18,8 @@ from .models import User
 
 views = Blueprint('views', __name__)
 # Global schedule time settings
-SCHEDULE_HOUR = 12  # Default 7 AM
-SCHEDULE_MINUTE = 30  # Default 0 minutes
+SCHEDULE_HOUR = 7  # Default 7 AM
+SCHEDULE_MINUTE = 0  # Default 0 minutes
 
 def geocode_with_retry(location_string, max_attempts=5, initial_delay=1):
     geolocator = Nominatim(user_agent="FindmyPrize_Flask", timeout=10)
@@ -214,7 +214,7 @@ def scheduler_status():
         job_info = {
             'id': schedule.id,
             'product': schedule.product,
-            'interval': f"Every {schedule.interval} minutes",
+            #'interval': f"Every {schedule.interval} minutes",
             'target_price': schedule.target_price,
             'location': f"{schedule.city}, {schedule.country}",
             'last_run': schedule.last_run,
@@ -304,7 +304,6 @@ def create_schedule():
     from flask import current_app
     
     product = request.form.get('product')
-    activate_schedule = request.form.get('activateSchedule') == 'on'
     target_price = request.form.get('price').replace(',', '.')
     city = current_user.city
     country =  current_user.country
@@ -334,7 +333,7 @@ def create_schedule():
         city=city,
         country=country,
         email_notification=True,
-        active=activate_schedule,
+        active=True,
         last_run=current_time,
         next_run=next_run_time
     )
