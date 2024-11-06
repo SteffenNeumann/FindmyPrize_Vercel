@@ -18,8 +18,8 @@ from .models import User
 
 views = Blueprint('views', __name__)
 # Global schedule time settings
-SCHEDULE_HOUR = 7  # Default 7 AM
-SCHEDULE_MINUTE = 0  # Default 0 minutes
+SCHEDULE_HOUR = 12  # Default 7 AM
+SCHEDULE_MINUTE = 30  # Default 0 minutes
 
 def geocode_with_retry(location_string, max_attempts=5, initial_delay=1):
     geolocator = Nominatim(user_agent="FindmyPrize_Flask", timeout=10)
@@ -265,6 +265,11 @@ def scheduled_job(schedule_id, app):
     with app.app_context():
         schedule = ScraperSchedule.query.get(schedule_id)
         current_time = datetime.datetime.now()
+        schedule_time = datetime.time(SCHEDULE_HOUR, SCHEDULE_MINUTE)
+        next_run = datetime.datetime.combine(current_time.date(), schedule_time)
+        if current_time > next_run:
+            next_run = next_run + datetime.timedelta(days=1)
+        schedule.next_run = next_run
         results = run_scraper(
             city=schedule.city,
             country=schedule.country,
@@ -275,7 +280,6 @@ def scheduled_job(schedule_id, app):
         )
         
         schedule.last_run = current_time
-        schedule.next_run = current_time + datetime.timedelta(minutes=schedule.interval)
         
         # Only create ScraperResult if results contain valid data
         if results and isinstance(results, list) and len(results) > 0:
@@ -337,65 +341,20 @@ def create_schedule():
     
     db.session.add(new_schedule)
     db.session.commit()
-    
-    if activate_schedule:
-        if current_app.debug and interval < 24*60:
-            # Use interval trigger for custom intervals
-            scheduler.add_job(
-                func=scheduled_job,
-                args=[new_schedule.id, current_app._get_current_object()],
-                trigger='interval',
-                minutes=interval,
-                id=f'schedule_{new_schedule.id}',
-                replace_existing=True,
-                next_run_time=next_run_time
-            )
-        else:
-            # Use cron trigger for daily schedules
-            scheduler.add_job(
-                func=scheduled_job,
-                args=[new_schedule.id, current_app._get_current_object()],
-                trigger='cron',
-                hour=schedule_time.hour,
-                minute=schedule_time.minute,
-                id=f'schedule_{new_schedule.id}',
-                replace_existing=True
-            )
-    
+    schedule_time = datetime.time(SCHEDULE_HOUR, SCHEDULE_MINUTE)
+
+    scheduler.add_job(
+            func=scheduled_job,
+            args=[new_schedule.id, current_app._get_current_object()],
+            trigger='cron',
+            hour=schedule_time.hour,
+            minute=schedule_time.minute,
+            id=f'schedule_{new_schedule.id}',
+            replace_existing=True
+        )
     flash('Schedule created successfully', category='success')
     return redirect(url_for('views.scheduler_status'))
-# def scheduled_job(schedule_id, app):
-#     with app.app_context():
-#         schedule = ScraperSchedule.query.get(schedule_id)
-#         current_time = datetime.datetime.now()
-#         results = run_scraper(
-#             city=schedule.city,
-#             country=schedule.country,
-#             product=schedule.product,
-#             target_price=schedule.target_price,
-#             should_send_email=schedule.email_notification,
-#             user_id=schedule.user_id
-#         )
-        
-#         schedule.last_run = current_time
-#         schedule.next_run = current_time + datetime.timedelta(minutes=schedule.interval)
-        
-#         if results and isinstance(results, list):
-#             for result in results:
-#                 scraper_result = ScraperResult(
-#                     store=result['store'],
-#                     price=float(result['price']),
-#                     product=result['product_name'],
-#                     target_price=schedule.target_price,
-#                     city=schedule.city,
-#                     country=schedule.country,
-#                     email_notification=True,
-#                     user_id=schedule.user_id,
-#                     data=json.dumps(result)
-#                 )
-#                 db.session.add(scraper_result)
-        
-#         db.session.commit()
+
 @views.route('/cleanup-schedules', methods=['POST'])
 @login_required
 def cleanup_schedules():
@@ -439,7 +398,7 @@ def update_preferences():
 @views.route('/resume_schedule/<int:schedule_id>', methods=['POST'])
 @login_required
 def resume_schedule(schedule_id):
-    from flask import current_app  # Add this import at the top of the function
+    from flask import current_app
     
     schedule = ScraperSchedule.query.get_or_404(schedule_id)
     if schedule.user_id != current_user.id:
@@ -449,21 +408,26 @@ def resume_schedule(schedule_id):
     # Reactivate the schedule in database
     schedule.active = True
     current_time = datetime.datetime.now()
-    next_run_time = current_time + datetime.timedelta(minutes=schedule.interval)
-    schedule.next_run = next_run_time
-    db.session.commit()
-
-    # Add job back to scheduler using the existing scheduled_job function
+    schedule_time = datetime.time(SCHEDULE_HOUR, SCHEDULE_MINUTE)
+    
+    # Add job back to scheduler using cron trigger for daily execution
     scheduler.add_job(
         func=scheduled_job,
-        args=[schedule.id, current_app._get_current_object()],  # Add the app argument here
-        trigger='interval',
-        minutes=schedule.interval,
+        args=[schedule.id, current_app._get_current_object()],
+        trigger='cron',
+        hour=schedule_time.hour,
+        minute=schedule_time.minute,
         id=f'schedule_{schedule.id}',
-        replace_existing=True,
-        next_run_time=next_run_time
+        replace_existing=True
     )
 
+    # Update next run time based on schedule time
+    next_run = datetime.datetime.combine(current_time.date(), schedule_time)
+    if current_time > next_run:
+        next_run = next_run + datetime.timedelta(days=1)
+    schedule.next_run = next_run
+    
+    db.session.commit()
     flash('Schedule resumed successfully', category='success')
     return redirect(url_for('views.scheduler_status'))
 
