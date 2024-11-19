@@ -3,84 +3,140 @@
 
 {% block content %}
 <style>
-  .login-container {
-      min-height: 100vh;
+  .hero-section {
+      height: 60vh;
       background: url('/static/groceries.png') center/cover no-repeat;
+      color: white;
       display: flex;
-      justify-content: center;
       align-items: center;
-      padding: 20px;
-  }
-
-  .glass-card {
-      background: rgba(255, 255, 255, 0.15);
-      backdrop-filter: blur(10px);
-      border-radius: 15px;
-      padding: 30px;
-      box-shadow: 0 8px 32px 0 rgba(31, 38, 135, 0.37);
-      border: 1px solid rgba(255, 255, 255, 0.18);
-      width: 100%;
-      max-width: 400px;
-  }
-
-  .form-title {
-      color: #ffffff;
+      justify-content: center;
       text-align: center;
-      margin-bottom: 30px;
-      font-weight: 600;
+      position: relative;
+      overflow: hidden;
+  }
+
+  .hero-section::before {
+      content: '';
+      position: absolute;
+      top: 0;
+      left: 0;
+      right: 0;
+      bottom: 0;
+      background: linear-gradient(135deg, rgba(30, 60, 114, 0.9) 0%, rgba(42, 82, 152, 0.8) 100%);
+  }
+
+  .hero-content {
+      z-index: 2;
+      padding: 0 20px;
+  }
+
+  .hero-title {
+      font-size: 3.5rem;
+      font-weight: 700;
+      margin-bottom: 1rem;
       text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.3);
   }
 
-  .form-control {
-      background: rgba(255, 255, 255, 0.2);
-      border: none;
-      border-radius: 8px;
-      padding: 12px;
-      color: #ffffff;
-      margin-bottom: 20px;
+  .hero-subtitle {
+      font-size: 1.5rem;
+      opacity: 0.9;
   }
 
-  .form-control::placeholder {
-      color: rgba(255, 255, 255, 0.7);
+  .login-container {
+      min-height: 40vh;
+      background: #f8f9fa;
+      display: flex;
+      justify-content: center;
+      align-items: flex-start;
+      padding: 40px 20px;
+      position: relative;
+  }
+
+  .glass-card {
+      background: white;
+      border-radius: 20px;
+      padding: 40px;
+      box-shadow: 0 15px 35px rgba(0, 0, 0, 0.1);
+      width: 100%;
+      max-width: 450px;
+      position: relative;
+      transform: translateY(-100px);
+  }
+
+  .form-title {
+      color: #1e3c72;
+      font-size: 2rem;
+      text-align: center;
+      margin-bottom: 30px;
+      font-weight: 700;
+  }
+
+  .form-group {
+      margin-bottom: 25px;
   }
 
   .form-label {
-      color: #ffffff;
-      font-weight: 500;
-      margin-bottom: 8px;
+      color: #2a5298;
+      font-weight: 600;
+      font-size: 1.1rem;
+      margin-bottom: 10px;
+      display: block;
+  }
+
+  .form-control {
+      background: #f8f9fa;
+      border: 2px solid #e9ecef;
+      border-radius: 12px;
+      padding: 15px;
+      font-size: 1rem;
+      transition: all 0.3s ease;
+  }
+
+  .form-control:focus {
+      border-color: #1e3c72;
+      box-shadow: 0 0 0 3px rgba(30, 60, 114, 0.1);
   }
 
   .btn-login {
       width: 100%;
-      padding: 12px;
-      background: rgba(255, 255, 255, 0.25);
-      border: none;
-      border-radius: 8px;
-      color: #ffffff;
+      padding: 15px;
+      background: linear-gradient(135deg, #1e3c72 0%, #2a5298 100%);
+      color: white;
       font-weight: 600;
+      font-size: 1.1rem;
+      border: none;
+      border-radius: 12px;
+      cursor: pointer;
       transition: all 0.3s ease;
   }
 
   .btn-login:hover {
-      background: rgba(255, 255, 255, 0.35);
       transform: translateY(-2px);
+      box-shadow: 0 5px 15px rgba(30, 60, 114, 0.3);
   }
 </style>
 
+<div class="hero-section">
+    <div class="hero-content">
+        <h1 class="hero-title">Welcome to FindMyPrize</h1>
+        <p class="hero-subtitle">Find the best deals on your favorite products</p>
+    </div>
+</div>
+
 <div class="login-container">
-  <div class="glass-card">
-      <h2 class="form-title">Welcome Back</h2>
-      <form method="POST">
-          <div class="form-group">
-              <label class="form-label" for="email">Email Address</label>
-              <input type="email" class="form-control" id="email" name="email" placeholder="Enter your email" required>
-          </div>
-          <div class="form-group">
-              <label class="form-label" for="password">Password</label>
-              <input type="password" class="form-control" id="password" name="password" placeholder="Enter your password" required>
-          </div>
-          <button type="submit" class="btn btn-login">Sign In</button>
-      </form>
-  </div>
+    <div class="glass-card">
+        <h2 class="form-title">Sign In</h2>
+        <form method="POST">
+            <div class="form-group">
+                <label class="form-label" for="email">Email Address</label>
+                <input type="email" class="form-control" id="email" name="email" placeholder="Enter your email" required>
+            </div>
+            <div class="form-group">
+                <label class="form-label" for="password">Password</label>
+                <input type="password" class="form-control" id="password" name="password" placeholder="Enter your password" required>
+            </div>
+            <button type="submit" class="btn-login">Sign In</button>
+        </form>
+    </div>
 </div>
 {% endblock %}
