@@ -137,6 +137,16 @@
             </div>
             <button type="submit" class="btn-login">Sign In</button>
         </form>
+        
+        <div class="text-center mt-4">
+            <p style="color: #666; font-size: 1rem;">
+                Don't have an account? 
+                <a href="{{ url_for('auth.sign_up') }}" 
+                   style="color: #1e3c72; font-weight: 600; text-decoration: none; transition: all 0.3s ease;">
+                    Sign up here
+                </a>
+            </p>
+        </div>
     </div>
 </div>
 {% endblock %}
