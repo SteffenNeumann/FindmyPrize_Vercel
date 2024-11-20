@@ -3,149 +3,155 @@
 
 {% block content %}
 <style>
-  .hero-section {
-      height: 60vh;
-      background: url('/static/groceries.png') center/cover no-repeat;
-      color: white;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      text-align: center;
-      position: relative;
-      overflow: hidden;
-  }
+    .login-page {
+        min-height: 100vh;
+        display: flex;
+        background: #f8f9fa;
+    }
 
-  .hero-section::before {
-      content: '';
-      position: absolute;
-      top: 0;
-      left: 0;
-      right: 0;
-      bottom: 0;
-      background: linear-gradient(135deg, rgba(30, 60, 114, 0.9) 0%, rgba(42, 82, 152, 0.8) 100%);
-  }
+    .brand-side {
+        flex: 1;
+        background: linear-gradient(135deg, rgba(30, 60, 114, 0.95), rgba(42, 82, 152, 0.9)), 
+                    url('/static/groceries.png') center/cover no-repeat;
+        padding: 40px;
+        display: flex;
+        flex-direction: column;
+        justify-content: center;
+        color: white;
+    }
 
-  .hero-content {
-      z-index: 2;
-      padding: 0 20px;
-  }
+    .login-side {
+        flex: 1;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        padding: 40px;
+    }
 
-  .hero-title {
-      font-size: 3.5rem;
-      font-weight: 700;
-      margin-bottom: 1rem;
-      text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.3);
-  }
+    .brand-content {
+        max-width: 500px;
+    }
 
-  .hero-subtitle {
-      font-size: 1.5rem;
-      opacity: 0.9;
-  }
+    .brand-title {
+        font-size: 3.2rem;
+        font-weight: 800;
+        margin-bottom: 1.5rem;
+        line-height: 1.2;
+    }
 
-  .login-container {
-      min-height: 40vh;
-      background: #f8f9fa;
-      display: flex;
-      justify-content: center;
-      align-items: flex-start;
-      padding: 40px 20px;
-      position: relative;
-  }
+    .brand-subtitle {
+        font-size: 1.2rem;
+        opacity: 0.9;
+        line-height: 1.6;
+    }
 
-  .glass-card {
-      background: white;
-      border-radius: 20px;
-      padding: 40px;
-      box-shadow: 0 15px 35px rgba(0, 0, 0, 0.1);
-      width: 100%;
-      max-width: 450px;
-      position: relative;
-      transform: translateY(-100px);
-  }
+    .login-form {
+        width: 100%;
+        max-width: 400px;
+    }
 
-  .form-title {
-      color: #1e3c72;
-      font-size: 2rem;
-      text-align: center;
-      margin-bottom: 30px;
-      font-weight: 700;
-  }
+    .login-title {
+        color: #1e3c72;
+        font-size: 2rem;
+        font-weight: 700;
+        margin-bottom: 2rem;
+    }
 
-  .form-group {
-      margin-bottom: 25px;
-  }
+    .form-group {
+        margin-bottom: 1.5rem;
+    }
 
-  .form-label {
-      color: #2a5298;
-      font-weight: 600;
-      font-size: 1.1rem;
-      margin-bottom: 10px;
-      display: block;
-  }
+    .form-label {
+        color: #2a5298;
+        font-weight: 600;
+        margin-bottom: 0.5rem;
+        display: block;
+    }
 
-  .form-control {
-      background: #f8f9fa;
-      border: 2px solid #e9ecef;
-      border-radius: 12px;
-      padding: 15px;
-      font-size: 1rem;
-      transition: all 0.3s ease;
-  }
+    .form-control {
+        width: 100%;
+        padding: 0.8rem 1rem;
+        border: 2px solid #e0e0e0;
+        border-radius: 10px;
+        font-size: 1rem;
+        transition: all 0.3s;
+    }
 
-  .form-control:focus {
-      border-color: #1e3c72;
-      box-shadow: 0 0 0 3px rgba(30, 60, 114, 0.1);
-  }
+    .form-control:focus {
+        border-color: #1e3c72;
+        box-shadow: 0 0 0 3px rgba(30, 60, 114, 0.1);
+        outline: none;
+    }
 
-  .btn-login {
-      width: 100%;
-      padding: 15px;
-      background: linear-gradient(135deg, #1e3c72 0%, #2a5298 100%);
-      color: white;
-      font-weight: 600;
-      font-size: 1.1rem;
-      border: none;
-      border-radius: 12px;
-      cursor: pointer;
-      transition: all 0.3s ease;
-  }
+    .btn-login {
+        width: 100%;
+        padding: 1rem;
+        background: linear-gradient(135deg, #1e3c72, #2a5298);
+        color: white;
+        border: none;
+        border-radius: 10px;
+        font-weight: 600;
+        font-size: 1rem;
+        cursor: pointer;
+        transition: transform 0.2s, box-shadow 0.2s;
+    }
 
-  .btn-login:hover {
-      transform: translateY(-2px);
-      box-shadow: 0 5px 15px rgba(30, 60, 114, 0.3);
-  }
+    .btn-login:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 5px 15px rgba(30, 60, 114, 0.2);
+    }
+
+    .signup-link {
+        text-align: center;
+        margin-top: 1.5rem;
+    }
+
+    .signup-link a {
+        color: #1e3c72;
+        font-weight: 600;
+        text-decoration: none;
+    }
+
+    @media (max-width: 768px) {
+        .login-page {
+            flex-direction: column;
+        }
+        
+        .brand-side {
+            padding: 60px 20px;
+        }
+        
+        .brand-title {
+            font-size: 2.5rem;
+        }
+    }
 </style>
 
-<div class="hero-section">
-    <div class="hero-content">
-        <h1 class="hero-title">Welcome to FindMyPrize</h1>
-        <p class="hero-subtitle">Find the best deals on your favorite products</p>
+<div class="login-page">
+    <div class="brand-side">
+        <div class="brand-content">
+            <h1 class="brand-title">Welcome to FindMyPrize</h1>
+            <p class="brand-subtitle">Discover the best deals on your favorite products with our smart price comparison platform. Save time and money with FindMyPrize.</p>
+        </div>
     </div>
-</div>
-
-<div class="login-container">
-    <div class="glass-card">
-        <h2 class="form-title">Sign In</h2>
-        <form method="POST">
-            <div class="form-group">
-                <label class="form-label" for="email">Email Address</label>
-                <input type="email" class="form-control" id="email" name="email" placeholder="Enter your email" required>
+    
+    <div class="login-side">
+        <div class="login-form">
+            <h2 class="login-title">Sign In</h2>
+            <form method="POST">
+                <div class="form-group">
+                    <label class="form-label" for="email">Email Address</label>
+                    <input type="email" class="form-control" id="email" name="email" placeholder="Enter your email" required>
+                </div>
+                <div class="form-group">
+                    <label class="form-label" for="password">Password</label>
+                    <input type="password" class="form-control" id="password" name="password" placeholder="Enter your password" required>
+                </div>
+                <button type="submit" class="btn-login">Sign In</button>
+            </form>
+            <div class="signup-link">
+                <p>Don't have an account? <a href="{{ url_for('auth.sign_up') }}">Sign up here</a></p>
             </div>
-            <div class="form-group">
-                <label class="form-label" for="password">Password</label>
-                <input type="password" class="form-control" id="password" name="password" placeholder="Enter your password" required>
-            </div>
-            <button type="submit" class="btn-login">Sign In</button>
-        </form>
-        
-        <div class="text-center mt-4">
-            <p style="color: #666; font-size: 1rem;">
-                Don't have an account? 
-                <a href="{{ url_for('auth.sign_up') }}" 
-                   style="color: #1e3c72; font-weight: 600; text-decoration: none; transition: all 0.3s ease;">
-                    Sign up here
-                </a>
-            </p>
         </div>
     </div>
 </div>
