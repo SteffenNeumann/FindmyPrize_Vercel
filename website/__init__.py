@@ -13,6 +13,7 @@ scheduler = APScheduler()
 
 def create_app():
     app = Flask(__name__, static_folder='static')
+    moment = Moment(app)
     app.config['SECRET_KEY'] = os.getenv('SECRET_KEY', 'dev-key-for-local')
     # Add this custom filter
     @app.template_filter('regex_replace')
