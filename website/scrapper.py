@@ -57,7 +57,7 @@ def run_scraper(city, country, product, target_price, should_send_email, user_id
 
     class DealFinding:
         def __init__(self, store, price, product_name, original_price=None, discount=None):
-            self.store = store
+            self.store = store≈
             self.price = price
             self.product_name = product_name
             self.original_price = original_price
@@ -135,7 +135,11 @@ def run_scraper(city, country, product, target_price, should_send_email, user_id
     results = []
 
     with sync_playwright() as p:
-        browser = p.chromium.launch(headless=True)
+        browser = browser = p.chromium.launch(
+    headless=True,
+    args=['--no-sandbox', '--disable-setuid-sandbox']
+)
+
         page = browser.new_page()
 
         for item in PRODUCTS_AND_PRICES:
