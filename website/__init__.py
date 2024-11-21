@@ -5,6 +5,7 @@ from os import path
 from flask_login import LoginManager
 from flask_moment import Moment
 import re
+import os
 
 db = SQLAlchemy()
 DB_NAME = "database.db"
@@ -12,13 +13,11 @@ scheduler = APScheduler()
 
 def create_app():
     app = Flask(__name__, static_folder='static')
-    moment = Moment(app)
+    app.config['SECRET_KEY'] = os.getenv('SECRET_KEY', 'dev-key-for-local')
     # Add this custom filter
     @app.template_filter('regex_replace')
     def regex_replace(s, find, replace):
         return re.sub(find, replace, s)
-    
-    app.config['SECRET_KEY'] = 'hjshjhdjah kjshkjdhjs'
     app.config['SQLALCHEMY_DATABASE_URI'] = f'sqlite:///{DB_NAME}'
     db.init_app(app)
 
