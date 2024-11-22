@@ -1,1 +1,2 @@
-web: gunicorn main:app
+web: playwright install && gunicorn main:app
+
