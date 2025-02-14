@@ -1,0 +1,163 @@
+{% extends "base.html" %}
+{% block content %}
+<div class="container-fluid px-4">
+    <div class="container-fluid">
+        <div class="row mb-4">
+            <div class="col-12">
+                <h1 class="display-4 mb-4">Dashboard</h1>
+            </div>
+        </div>
+<div class="card mb-4 w-100">
+    <div class="card-header">
+        <h2 class="h4 m-0">Profile Settings</h2>
+    </div>
+    <div class="card-body">
+        <div class="row">
+            <div class="col-md-8">
+                <!-- User Info Section -->
+                <div class="user-info mb-4">
+                    <h3 class="h5 mb-3">User Information</h3>
+                    <div class="row">
+                        <div class="col-md-6">
+                            <p><strong>Email:</strong> {{ user.email }}</p>
+                        </div>
+                        <div class="col-md-6">
+                            <p><strong>Name:</strong> {{ user.first_name }}</p>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Account Overview Section -->
+                <div class="user-stats">
+                    <h3 class="h5 mb-3">Account Overview</h3>
+                    <div class="row">
+                        <div class="col-md-6 mb-3">
+                            <div class="card bg-light h-100">
+                                <div class="card-body text-center d-flex flex-column justify-content-center">
+                                    <i class="fas fa-user-clock fa-2x text-primary mb-2"></i>
+                                    <h6 class="stat-title">Member Since</h6>
+                                    <div class="stat-value">
+                                        <span class="h4">{{ user.date_joined.strftime('%b %d, %Y') }}</span>
+
+
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="col-md-6 mb-3">
+                            <div class="card bg-light h-100">
+                                <div class="card-body text-center d-flex flex-column justify-content-center">
+                                    <i class="fas fa-calendar-check fa-2x text-success mb-2"></i>
+                                    <h6 class="text-muted">Active Schedules</h6>
+                                    <h4 class="mb-0">{{ scheduler_info|length }}</h4>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="col-md-6 mb-3">
+                            <div class="card bg-light h-100">
+                                <div class="card-body text-center d-flex flex-column justify-content-center">
+                                    <i class="fas fa-search fa-2x text-info mb-2"></i>
+                                    <h6 class="text-muted">Successful Searches</h6>
+                                    <h4 class="mb-0">{{ successful_searches|default(0) }}</h4>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="col-md-6 mb-3">
+                            <div class="card bg-light h-100">
+                                <div class="card-body text-center d-flex flex-column justify-content-center">
+                                    <i class="fas fa-tags fa-2x text-warning mb-2"></i>
+                                    <h6 class="text-muted">Deals Found</h6>
+                                    <h4 class="mb-0">{{ deals_found|default(0) }}</h4>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="col-md-4">
+                <div class="location-settings">
+                    <h3 class="h5 mb-4">Location Settings</h3>
+                    <form action="{{ url_for('views.update_location') }}" method="POST">
+                        <div class="form-group mb-3">
+                            <label for="city">City</label>
+                            <input type="text" id="city" name="city" value="{{ user.city }}" class="form-control">
+                        </div>
+                        <div class="form-group mb-3">
+                            <label for="country">Country</label>
+                            <input type="text" id="country" name="country" value="{{ user.country }}" class="form-control">
+                        </div>
+                        <button type="submit" class="btn btn-primary w-100">Update Location</button>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+    <!-- Schedules Table -->
+    <div class="card shadow-sm">
+        <div class="card-header bg-white d-flex justify-content-between align-items-center">
+            <h5 class="m-0">Active Schedules</h5>
+            <form action="{{ url_for('views.cleanup_schedules') }}" method="POST" class="m-0">
+                <button type="submit" class="btn btn-outline-danger btn-sm">
+                    <i class="fas fa-broom me-1"></i> Clean Up Inactive
+                </button>
+            </form>
+        </div>
+        <div class="card-body">
+            <div class="table-responsive">
+                <table class="table table-hover align-middle">
+                    <thead>
+                        <tr>
+                            <th>Product</th>
+                            <th>Target Price</th>
+                            <th>Location</th>
+                            <th>Status</th>
+                            <th>Actions</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for schedule in scheduler_info %}
+                        <tr>
+                            <td>{{ schedule.product }}</td>
+                            <td>${{ schedule.target_price }}</td>
+                            <td>{{ schedule.location }}</td>
+                            <td>
+                                <span class="badge rounded-pill bg-{{ 'success' if schedule.active else 'secondary' }} text-white">
+                                    {{ 'Active' if schedule.active else 'Paused' }}
+                                </span>
+                                
+                            </td>
+                            <td>
+                                <div class="btn-group">
+                                    {% if schedule.active %}
+                                    <form action="{{ url_for('views.cancel_schedule', schedule_id=schedule.id) }}" method="POST" class="d-inline">
+                                        <button type="submit" class="btn btn-sm btn-outline-warning">
+                                            <i class="fas fa-pause"></i>
+                                        </button>
+                                    </form>
+                                    {% else %}
+                                    <form action="{{ url_for('views.resume_schedule', schedule_id=schedule.id) }}" method="POST" class="d-inline">
+                                        <button type="submit" class="btn btn-sm btn-outline-success">
+                                            <i class="fas fa-play"></i>
+                                        </button>
+                                    </form>
+                                    {% endif %}
+                                    <form action="{{ url_for('views.delete_schedule', schedule_id=schedule.id) }}" method="POST" class="d-inline">
+                                        <button type="submit" class="btn btn-sm btn-outline-danger">
+                                            <i class="fas fa-trash"></i>
+                                        </button>
+                                    </form>
+                                </div>
+                            </td>
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+        </div>
+        </div>
+    </div>
+</div>
+
+{% endblock %}

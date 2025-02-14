@@ -1,120 +1,255 @@
 {% extends "base.html" %}
-{% block title %}Home{% endblock %}
 {% block content %}
-<h1 align="center">Notes</h1>
-<ul class="list-group list-group-flush" id="notes">
-  {% for note in notes %}
-  <li class="list-group-item">
-    {{ note.data }}
-    <button type="button" class="close" onClick="deleteNote({{ note.id }})">
-      <span aria-hidden="true">×</span>
-    </button>
-  </li>
-  {% endfor %}
-</ul>
-<form method="POST">
-  <textarea name="note" id="note" class="form-control"></textarea>
-  <br />
-  <div align="center">
-    <button type="submit" class="btn btn-primary">Add Note</button>
-  </div>
-</form>
+<div class="container-fluid py-5 bg-light">
+    <!-- Hero Section -->
+    <div class="container mb-5">
+        <div class="row align-items-center">
+            <div class="col-lg-6">
+                <h1 class="display-4 fw-bold mb-4"><i class="fas fa-search text-primary"></i> Find Your Best Deals</h1>
+                <p class="lead text-muted">Track prices, set alerts, and never miss a great deal again!</p>
+            </div>
+        </div>
+    </div>
 
-<h1 align="center">Scraper</h1>
-<form id="scraperForm" method="POST">
-  <div class="form-group">
-      <label for="product">Product</label>
-      <input 
-          type="text" 
-          class="form-control" 
-          id="product" 
-          name="product" 
-          placeholder="Enter product name"
-      >
-  </div>
-  <div class="form-group">
-      <label for="price">Price</label>
-      <input 
-          type="number" 
-          class="form-control" 
-          id="price" 
-          name="price" 
-          placeholder="Enter target price"
-      >
-  </div>
-  <div class="form-group">
-      <label for="city">City</label>
-      <input 
-          type="text" 
-          class="form-control" 
-          id="city" 
-          name="city" 
-          placeholder="Enter city"
-      >
-  </div>
-  <div class="form-group">
-      <label for="country">Country</label>
-      <input 
-          type="text" 
-          class="form-control" 
-          id="country" 
-          name="country" 
-          placeholder="Enter country"
-      >
-  </div>
-  <br />
-  <button type="submit" class="btn btn-primary">Search</button>
-</form>
-<div id="results" class="results-container"></div>
+    <!-- Add this right after the hero section -->
+    <div class="container mb-5">
+        <div class="row">
+            <!-- Search Section -->
+            <div class="col-12">
+                <div class="card shadow-sm">
+                    <div class="card-header bg-white">
+                        <h3 class="mb-0 text-primary"><i class="fas fa-search me-2"></i>Produktsuche</h3>
+                    </div>
+                    <div class="card-body p-4">
+                        <!-- Keep your existing form but remove manual schedule option -->
+                        <form method="POST" class="needs-validation" novalidate>
+                            <!-- Your existing input fields -->
+                            <div class="row g-4">
+                                <div class="col-md-6">
+                                    <div class="form-floating mb-3">
+                                        <input type="text" class="form-control" id="product" name="product" required>
+                                        <label for="product">Was suchst du?</label>
+                                    </div>
+                                    <div class="form-floating mb-3">
+                                        <div class="input-group">
+                                            <span class="input-group-text bg-primary text-white">€</span>
+                                            <input type="text" class="form-control" id="price" name="price" placeholder="1,99" required>
+                                        </div>
+                                        <label for="price" class="d-block mt-2">Zielpreis</label>
+                                    </div>
+                                </div>
+                                
+                                <!-- Notification Options -->
+                                <div class="col-md-6">
+                                    <div class="card bg-light border-0">
+                                        <div class="card-body">
+                                            <div class="form-check form-switch mb-3">
+                                                <input class="form-check-input" type="checkbox" id="saveSearch" name="saveSearch">
+                                                <label class="form-check-label" for="saveSearch">
+                                                    <i class="fas fa-bookmark text-primary"></i> Save this search
+                                                </label>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
 
-<style>
-.results-container {
-    max-width: 800px;
-    margin: 20px auto;
-    font-family: Arial, sans-serif;
-}
+                            </div>
 
-.deal-alert {
-    background: white;
-    border: 1px solid #ddd;
-    padding: 12px;
-    margin: 8px 0;
-    border-radius: 6px;
-}
-</style>
-
+                            <!-- Action Buttons -->
+                            <div class="d-flex justify-content-center gap-3 mt-4">
+                                <button type="submit" class="btn btn-primary btn-lg px-4">
+                                    <i class="fas fa-search me-2"></i>Jetzt suchen
+                                    <span id="searchSpinner" class="d-none ms-2">
+                                        <i class="fas fa-sync-alt fa-spin"></i>
+                                    </span>
+                                </button>
+                                
+                                <button type="submit" formaction="{{ url_for('views.create_schedule') }}" 
+                                        class="btn btn-outline-success btn-lg px-4">
+                                    <i class="fas fa-plus me-2"></i>Zur Watchlist hinzufügen
+                                </button>
+                            </div>
+                        </form>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    <!-- Results Section -->
+    <div class="container mb-5">
+        <div class="card shadow-sm">
+            <div class="card-header bg-white">
+                <h3 class="mb-0 text-success"><i class="fas fa-tags me-2"></i>Aktuelle Ergebnisse</h3>
+            </div>
+            <div class="card-body">
+                {% if results %}
+                <div class="results-container">
+                    <div class="row">
+                        {% for deal in results %}
+                        <div class="col-md-3 mb-3">
+                            <div class="card h-100 shadow-sm hover-effect border-0">
+                                <div class="card-header bg-light d-flex justify-content-between align-items-center py-2">
+                                    <div class="text-success small">
+                                        <i class="fas fa-store me-1"></i>
+                                        {{ deal['store'] }}
+                                    </div>
+                                </div>
+                                <div class="card-body p-3">
+                                    <h6 class="card-title text-truncate mb-3">{{ deal['product_name'] }}</h6>
+                                    <div class="small">
+                                        <p class="mb-1">Current: €{{ "%.2f"|format(deal['price']) }}</p>
+                                        <p class="mb-2">Target: €{{ "%.2f"|format(deal['target_price']) }}</p>
+                                        <span class="text-muted smaller">
+                                            <i class="far fa-clock me-1"></i>
+                                            {{ moment(deal['timestamp']).fromNow() }}
+                                        </span>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        {% endfor %}
+                    </div>
+                </div>
+                {% endif %}
+            </div>
+        </div>
+    </div>
+    <!-- Previous Deals Section -->
+    <div class="container mb-5">
+        <div class="card shadow-sm">
+                    <!-- Previous Deals Header -->
+                    <div class="card-header bg-white d-flex justify-content-between align-items-center">
+                        <h3 class="mb-0 text-secondary"><i class="fas fa-history me-2"></i>Frühere Angebote</h3>
+                        {% if deals %}
+                        <form action="{{ url_for('views.clear_deals') }}" method="POST" class="d-inline">
+                            <button type="submit" class="btn btn-outline-danger btn-sm">
+                                <i class="fas fa-trash-alt me-2"></i>Clear All
+                            </button>
+                        </form>
+                        {% endif %}
+                    </div>
+            <div class="card-body">
+                <!-- Your existing previous deals code -->
+                {% if deals %}
+                <div class="row">
+                {% for deal in deals %}
+                <div class="col-md-3 mb-3">
+                    <div class="card h-100 shadow-sm hover-effect border-0">
+                        <div class="card-header bg-light d-flex justify-content-between align-items-center py-2">
+                            <div class="text-muted small">
+                                <i class="fas fa-store me-1"></i>
+                                {{ deal.store or 'Unknown Store' }}
+                            </div>
+                            <form action="{{ url_for('views.delete_deal') }}" method="POST" class="d-inline">
+                                <input type="hidden" name="deal_id" value="{{ deal.id }}">
+                                <button type="submit" class="btn btn-link btn-sm text-muted p-0">
+                                    <i class="fas fa-trash"></i>
+                                </button>
+                            </form>
+                        </div>
+                        <div class="card-body p-3">
+                            <h6 class="card-title text-truncate mb-3">{{ deal.product or 'Unknown Product' }}</h6>
+                            <div class="small">
+                                <p class="mb-1">Current: €{{ "%.2f"|format(deal.price or 0.00) }}</p>
+                                <p class="mb-2">Target: €{{ "%.2f"|format(deal.target_price or 0.00) }}</p>
+                                <span class="text-muted smaller">
+                                    <i class="far fa-clock me-1"></i>
+                                    {{ moment(deal.date_created).fromNow() }}
+                                </span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                {% endfor %}
+                </div>
+                {% else %}
+                <div class="alert alert-info">
+                    <i class="fas fa-info-circle me-2"></i>
+                    No previous deals in database
+                </div>
+                {% endif %}
+            </div>
+        </div>
+    </div>
+</div>
+<!-- Keep your existing scripts -->
 <script>
-document.getElementById('scraperForm').addEventListener('submit', async (e) => {
-    e.preventDefault();
-    const formData = new FormData(e.target);
-    const resultsDiv = document.getElementById('results');
-    resultsDiv.innerHTML = 'Searching...'; // Loading indicator
-    
-    try {
-        const response = await fetch('/', {
-            method: 'POST',
-            body: formData
-        });
-        const data = await response.json();
-        
-        if (data.error) {
-            resultsDiv.innerHTML = `<div class="deal-alert error">${data.error}</div>`;
-            return;
+document.querySelector('form').addEventListener('submit', function(e) {
+    document.getElementById('searchSpinner').classList.remove('d-none');
+});
+// Check results after page loads
+document.addEventListener('DOMContentLoaded', function() {
+    const resultsContainer = document.querySelector('.results-container');
+    const searchStatus = document.getElementById('searchStatus');
+    å
+    // Only show status if a search was performed
+    if (resultsContainer) {
+        if (resultsContainer.children.length === 0) {
+            searchStatus.classList.remove('d-none');
+            searchStatus.innerHTML = '<div class="text-center">No deals found</div>';
         }
-        
-        if (data.results && data.results[0]) {
-            const dealsText = data.results[0];
-            const deals = dealsText.split('\n').filter(deal => deal.trim());
-            
-            resultsDiv.innerHTML = deals.map(deal => 
-                `<div class="deal-alert">${deal}</div>`
-            ).join('');
-        } else {
-            resultsDiv.innerHTML = '<div class="deal-alert">No results found</div>';
-        }
-    } catch (error) {
-        resultsDiv.innerHTML = '<div class="deal-alert error">An error occurred while fetching results</div>';
-        console.error('Error:', error);
+    } else {
+        searchStatus.classList.add('d-none');
     }
 });
-</script>{% endblock %}
+</script>
+
+<script>
+    document.addEventListener('DOMContentLoaded', function() {
+        {% if saved_search %}
+            // Populate form fields with saved search data
+            document.getElementById('product').value = "{{ saved_search.product }}";
+            document.getElementById('price').value = "{{ saved_search.target_price }}";
+            document.getElementById('city').value = "{{ saved_search.city }}";
+            document.getElementById('country').value = "{{ saved_search.country }}";
+            document.getElementById('emailNotification').checked = {{ 'true' if saved_search.email_notification else 'false' }};
+        {% endif %}
+    });
+</script>
+<script>
+document.querySelectorAll('input[name="scheduleType"]').forEach(radio => {
+    radio.addEventListener('change', function() {
+        // Hide all schedule options first
+        document.querySelectorAll('.schedule-options').forEach(opt => {
+            opt.style.display = 'none';
+        });
+        
+        // Show the selected option
+        if (this.checked) {
+            document.getElementById(this.value + 'Options').style.display = 'block';
+        }
+    });
+});
+</script>
+<style>
+.container.mb-5:first-of-type {
+    background: linear-gradient(rgba(0, 0, 0, 0.7), rgba(0, 0, 0, 0.7)), url("{{ url_for('static', filename='groceries.png') }}") !important;
+    background-size: cover !important;
+    background-position: center !important;
+    min-height: 400px !important;
+    padding: 4rem !important;
+    border-radius: 15px !important;
+    margin-top: 20px !important;
+}
+
+.display-4 {
+    color: white !important;
+    text-shadow: 2px 2px 4px rgba(0,0,0,0.8) !important;
+    font-weight: 700 !important;
+}
+
+.lead {
+    color: #f8f9fa !important;
+    text-shadow: 1px 1px 3px rgba(0,0,0,0.9) !important;
+    font-weight: 500 !important;
+}
+
+.container {
+    background-color: rgba(255, 255, 255, 0.98) !important;
+    backdrop-filter: blur(10px) !important;
+    -webkit-backdrop-filter: blur(10px) !important;
+    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1) !important;
+}
+</style>
+{% endblock %}
+

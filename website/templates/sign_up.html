@@ -1,48 +1,177 @@
-{% extends "base.html" %} {% block title %}Sign Up{% endblock %} {% block
-content %}
-<form method="POST">
-  <h3 align="center">Sign Up</h3>
-  <div class="form-group">
-    <label for="email">Email Address</label>
-    <input
-      type="email"
-      class="form-control"
-      id="email"
-      name="email"
-      placeholder="Enter email"
-    />
-  </div>
-  <div class="form-group">
-    <label for="firstName">First Name</label>
-    <input
-      type="text"
-      class="form-control"
-      id="firstName"
-      name="firstName"
-      placeholder="Enter first name"
-    />
-  </div>
-  <div class="form-group">
-    <label for="password1">Password</label>
-    <input
-      type="password"
-      class="form-control"
-      id="password1"
-      name="password1"
-      placeholder="Enter password"
-    />
-  </div>
-  <div class="form-group">
-    <label for="password2">Password (Confirm)</label>
-    <input
-      type="password"
-      class="form-control"
-      id="password2"
-      name="password2"
-      placeholder="Confirm password"
-    />
-  </div>
-  <br />
-  <button type="submit" class="btn btn-primary">Submit</button>
-</form>
+{% extends "base.html" %}
+{% block title %}Sign Up{% endblock %}
+
+{% block content %}
+<style>
+    .signup-page {
+        min-height: 100vh;
+        display: flex;
+        background: #f8f9fa;
+    }
+
+    .brand-side {
+        flex: 1;
+        background: linear-gradient(135deg, rgba(30, 60, 114, 0.95), rgba(42, 82, 152, 0.9)), 
+                    url('/static/groceries.png') center/cover no-repeat;
+        padding: 40px;
+        display: flex;
+        flex-direction: column;
+        justify-content: center;
+        color: white;
+    }
+
+    .signup-side {
+        flex: 1;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        padding: 40px;
+        overflow-y: auto;
+    }
+
+    .brand-content {
+        max-width: 500px;
+    }
+
+    .brand-title {
+        font-size: 3.2rem;
+        font-weight: 800;
+        margin-bottom: 1.5rem;
+        line-height: 1.2;
+    }
+
+    .brand-subtitle {
+        font-size: 1.2rem;
+        opacity: 0.9;
+        line-height: 1.6;
+    }
+
+    .signup-form {
+        width: 100%;
+        max-width: 400px;
+        padding: 20px 0;
+    }
+
+    .signup-title {
+        color: #1e3c72;
+        font-size: 2rem;
+        font-weight: 700;
+        margin-bottom: 2rem;
+    }
+
+    .form-group {
+        margin-bottom: 1.5rem;
+    }
+
+    .form-label {
+        color: #2a5298;
+        font-weight: 600;
+        margin-bottom: 0.5rem;
+        display: block;
+    }
+
+    .form-control {
+        width: 100%;
+        padding: 0.8rem 1rem;
+        border: 2px solid #e0e0e0;
+        border-radius: 10px;
+        font-size: 1rem;
+        transition: all 0.3s;
+    }
+
+    .form-control:focus {
+        border-color: #1e3c72;
+        box-shadow: 0 0 0 3px rgba(30, 60, 114, 0.1);
+        outline: none;
+    }
+
+    .btn-signup {
+        width: 100%;
+        padding: 1rem;
+        background: linear-gradient(135deg, #1e3c72, #2a5298);
+        color: white;
+        border: none;
+        border-radius: 10px;
+        font-weight: 600;
+        font-size: 1rem;
+        cursor: pointer;
+        transition: transform 0.2s, box-shadow 0.2s;
+        margin-top: 1rem;
+    }
+
+    .btn-signup:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 5px 15px rgba(30, 60, 114, 0.2);
+    }
+
+    .login-link {
+        text-align: center;
+        margin-top: 1.5rem;
+    }
+
+    .login-link a {
+        color: #1e3c72;
+        font-weight: 600;
+        text-decoration: none;
+    }
+
+    @media (max-width: 768px) {
+        .signup-page {
+            flex-direction: column;
+        }
+        
+        .brand-side {
+            padding: 60px 20px;
+        }
+        
+        .brand-title {
+            font-size: 2.5rem;
+        }
+    }
+</style>
+
+<div class="signup-page">
+    <div class="brand-side">
+        <div class="brand-content">
+            <h1 class="brand-title">Join FindMyPrize</h1>
+            <p class="brand-subtitle">Create your account today and start finding the best deals on products you love. Compare prices, save money, and shop smarter with FindMyPrize.</p>
+        </div>
+    </div>
+    
+    <div class="signup-side">
+        <div class="signup-form">
+            <h2 class="signup-title">Create Account</h2>
+            <form method="POST">
+                <div class="form-group">
+                    <label class="form-label" for="email">Email Address</label>
+                    <input type="email" class="form-control" id="email" name="email" placeholder="Enter your email" required>
+                </div>
+                <div class="form-group">
+                    <label class="form-label" for="firstName">First Name</label>
+                    <input type="text" class="form-control" id="firstName" name="firstName" placeholder="Enter your first name" required>
+                </div>
+                <div class="form-group">
+                    <label class="form-label" for="city">City</label>
+                    <input type="text" class="form-control" id="city" name="city" placeholder="Enter your city" required>
+                </div>
+                <div class="form-group">
+                    <label class="form-label" for="country">Country</label>
+                    <input type="text" class="form-control" id="country" name="country" placeholder="Enter your country" required>
+                </div>
+                <div class="form-group">
+                    <label class="form-label" for="password1">Password</label>
+                    <input type="password" class="form-control" id="password1" name="password1" placeholder="Create a password" required>
+                </div>
+                <div class="form-group">
+                    <label class="form-label" for="password2">Confirm Password</label>
+                    <input type="password" class="form-control" id="password2" name="password2" placeholder="Confirm your password" required>
+                </div>
+                <button type="submit" class="btn-signup">Create Account</button>
+            </form>
+            <div class="login-link">
+                <p>Already have an account? <a href="{{ url_for('auth.login') }}">Sign in here</a></p>
+            </div>
+        </div>
+    </div>
+</div>
 {% endblock %}
