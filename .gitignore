@@ -10,3 +10,4 @@ ENV/
 .DS_Store
 .vscode/
 *.sqlite3
+.vercel

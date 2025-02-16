@@ -135,16 +135,16 @@ def run_scraper(city, country, product, target_price, should_send_email, user_id
     results = []
 
     with sync_playwright() as p:
-        browser = browser = p.chromium.launch(
-                    headless=True,
-                    chromium_sandbox=False,
-                    args=[
-                        '--no-sandbox',
-                       '--disable-setuid-sandbox',
-                       '--disable-dev-shm-usage'
-                             ]
-)
-
+        browser = p.chromium.launch(
+            headless=True,
+            args=[
+                '--no-sandbox',
+                '--disable-setuid-sandbox',
+                '--disable-dev-shm-usage',
+                '--disable-gpu',
+                '--single-process'
+            ]
+        )
 
         page = browser.new_page()
 
