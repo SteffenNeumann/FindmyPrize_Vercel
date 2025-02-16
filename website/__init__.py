@@ -11,16 +11,14 @@ scheduler = APScheduler()
 
 def create_app():
     app = Flask(__name__, static_folder='static')
-    Moment(app)
+    moment = Moment(app)
     app.config['SECRET_KEY'] = os.getenv('SECRET_KEY', 'dev-key-for-local')
     
-    # Update database configuration for Vercel
-    if os.environ.get('VERCEL_ENV'):
-        app.config['SQLALCHEMY_DATABASE_URI'] = os.environ.get('DATABASE_URL')
-    else:
-        app.config['SQLALCHEMY_DATABASE_URI'] = 'sqlite:///database.db'
-    
+    # Use POSTGRES_URL for Vercel deployment
+    database_url = os.getenv('POSTGRES_URL')
+    app.config['SQLALCHEMY_DATABASE_URI'] = database_url
     app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
+    
     db.init_app(app)
 
     from .views import views
