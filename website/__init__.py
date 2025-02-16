@@ -19,12 +19,12 @@ def create_app():
     
     # Clean and format the database URL
     if database_url:
-        # Remove any 'supa' prefix if present
-        if 'supa' in database_url:
-            database_url = database_url.replace('supa://', 'postgresql://')
+        # Remove any supa-related components completely
+        database_url = database_url.replace('supa://', 'postgresql://')
+        database_url = database_url.replace('?supa=', '?')
+        # Ensure proper postgresql prefix
         if not database_url.startswith('postgresql://'):
-            database_url = f'postgresql://{database_url}'
-    
+            database_url = f'postgresql://{database_url}'    
     app.config['SQLALCHEMY_DATABASE_URI'] = database_url
     app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
     
