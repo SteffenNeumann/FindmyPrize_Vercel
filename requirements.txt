@@ -1,28 +1,41 @@
+alembic==1.13.3
 APScheduler==3.10.4
-blinker==1.9.0
-click==8.1.7
-Flask==3.1.0
+blinker @ file:///home/conda/feedstock_root/build_artifacts/blinker_1715091184126/work
+certifi==2024.8.30
+charset-normalizer==3.4.0
+click @ file:///home/conda/feedstock_root/build_artifacts/click_1692311806742/work
+exceptiongroup==1.2.2
+Flask @ file:///home/conda/feedstock_root/build_artifacts/flask_1712667726126/work
 Flask-APScheduler==1.13.1
-Flask-Login==0.6.3
+Flask-Login @ file:///home/conda/feedstock_root/build_artifacts/flask-login_1699273405387/work
+Flask-Migrate==4.0.7
 Flask-Moment==1.0.6
-Flask-SQLAlchemy==3.1.1
-geographiclib==2.0
-geopy==2.4.1
-greenlet==3.1.1
+Flask-SQLAlchemy @ file:///home/conda/feedstock_root/build_artifacts/flask-sqlalchemy_1719325630281/work
+geographiclib @ file:///home/conda/feedstock_root/build_artifacts/geographiclib_1650904727084/work
+geopy @ file:///home/conda/feedstock_root/build_artifacts/geopy_1709140178986/work
+greenlet @ file:///Users/runner/miniforge3/conda-bld/greenlet_1726922212101/work
 gunicorn==23.0.0
-importlib_metadata==8.5.0
-itsdangerous==2.2.0
-Jinja2==3.1.4
-MarkupSafe==3.0.2
-packaging==24.2
+idna==3.10
+importlib_metadata @ file:///home/conda/feedstock_root/build_artifacts/importlib-metadata_1726082825846/work
+iniconfig==2.0.0
+itsdangerous @ file:///home/conda/feedstock_root/build_artifacts/itsdangerous_1713372668944/work
+Jinja2 @ file:///home/conda/feedstock_root/build_artifacts/jinja2_1715127149914/work
+Mako==1.3.6
+MarkupSafe @ file:///Users/runner/miniforge3/conda-bld/markupsafe_1729351343187/work
+packaging==24.1
 playwright==1.48.0
+pluggy==1.5.0
 pyee==12.0.0
+pytest==8.3.3
 python-dateutil==2.9.0.post0
 python-dotenv==1.0.1
 pytz==2024.2
+requests==2.32.3
 six==1.16.0
-SQLAlchemy==2.0.36
-typing_extensions==4.12.2
+SQLAlchemy @ file:///Users/runner/miniforge3/conda-bld/sqlalchemy_1729066339957/work
+tomli==2.0.2
+typing_extensions @ file:///home/conda/feedstock_root/build_artifacts/typing_extensions_1717802530399/work
 tzlocal==5.2
-Werkzeug==3.1.3
-zipp==3.21.0
+urllib3==2.2.3
+Werkzeug @ file:///home/conda/feedstock_root/build_artifacts/werkzeug_1724330738730/work
+zipp @ file:///home/conda/feedstock_root/build_artifacts/zipp_1726248574750/work
