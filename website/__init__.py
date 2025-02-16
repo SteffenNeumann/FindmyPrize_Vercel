@@ -19,7 +19,7 @@ def create_app():
     @app.template_filter('regex_replace')
     def regex_replace(s, find, replace):
         return re.sub(find, replace, s)
-    app.config['SQLALCHEMY_DATABASE_URI'] = os.getenv('DATABASE_URL', 'postgresql://user:password@host:port/dbname')
+    app.config['SQLALCHEMY_DATABASE_URI'] = f'sqlite:///{DB_NAME}'
     db.init_app(app)
 
     from .views import views
@@ -50,3 +50,4 @@ def create_database(app):
     if not path.exists('website/' + DB_NAME):
         db.create_all(app=app)
         print('Created Database!')
+        
