@@ -14,9 +14,16 @@ def create_app():
     moment = Moment(app)
     app.config['SECRET_KEY'] = os.getenv('SECRET_KEY', 'dev-key-for-local')
     
+    # Get the database URL from environment variables
     database_url = os.getenv('POSTGRES_URL')
-    if database_url and not database_url.startswith('postgresql://'):
-        database_url = f'postgresql://{database_url}'
+    
+    # Clean and format the database URL
+    if database_url:
+        # Remove any 'supa' prefix if present
+        if 'supa' in database_url:
+            database_url = database_url.replace('supa://', 'postgresql://')
+        if not database_url.startswith('postgresql://'):
+            database_url = f'postgresql://{database_url}'
     
     app.config['SQLALCHEMY_DATABASE_URI'] = database_url
     app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
@@ -45,7 +52,6 @@ def create_app():
     scheduler.start()
 
     return app
-
 def create_database(app):
     if not path.exists('website/database.db'):
         db.create_all(app=app)
