@@ -4,22 +4,23 @@ from flask_sqlalchemy import SQLAlchemy
 from os import path
 from flask_login import LoginManager
 from flask_moment import Moment
-import re
 import os
 
 db = SQLAlchemy()
-DB_NAME = "database.db"
 scheduler = APScheduler()
 
 def create_app():
     app = Flask(__name__, static_folder='static')
-    moment = Moment(app)
+    Moment(app)
     app.config['SECRET_KEY'] = os.getenv('SECRET_KEY', 'dev-key-for-local')
-    # Add this custom filter
-    @app.template_filter('regex_replace')
-    def regex_replace(s, find, replace):
-        return re.sub(find, replace, s)
-    app.config['SQLALCHEMY_DATABASE_URI'] = f'sqlite:///{DB_NAME}'
+    
+    # Update database configuration for Vercel
+    if os.environ.get('VERCEL_ENV'):
+        app.config['SQLALCHEMY_DATABASE_URI'] = os.environ.get('DATABASE_URL')
+    else:
+        app.config['SQLALCHEMY_DATABASE_URI'] = 'sqlite:///database.db'
+    
+    app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
     db.init_app(app)
 
     from .views import views
@@ -28,7 +29,7 @@ def create_app():
     app.register_blueprint(views, url_prefix='/')
     app.register_blueprint(auth, url_prefix='/')
 
-    from .models import User, Note
+    from .models import User
     
     with app.app_context():
         db.create_all()
@@ -47,7 +48,7 @@ def create_app():
     return app
 
 def create_database(app):
-    if not path.exists('website/' + DB_NAME):
+    if not path.exists('website/database.db'):
         db.create_all(app=app)
         print('Created Database!')
         

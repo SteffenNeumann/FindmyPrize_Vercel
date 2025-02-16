@@ -11,10 +11,5 @@
       "src": "/(.*)",
       "dest": "main.py"
     }
-  ],
-  "build": {
-    "env": {
-      "PLAYWRIGHT_BROWSERS_PATH": "0"
-    }
-  }
+  ]
 }
