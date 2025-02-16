@@ -14,13 +14,14 @@ def create_app():
     moment = Moment(app)
     app.config['SECRET_KEY'] = os.getenv('SECRET_KEY', 'dev-key-for-local')
     
-    # Use POSTGRES_URL for Vercel deployment
     database_url = os.getenv('POSTGRES_URL')
+    if database_url and not database_url.startswith('postgresql://'):
+        database_url = f'postgresql://{database_url}'
+    
     app.config['SQLALCHEMY_DATABASE_URI'] = database_url
     app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
     
     db.init_app(app)
-
     from .views import views
     from .auth import auth
 
