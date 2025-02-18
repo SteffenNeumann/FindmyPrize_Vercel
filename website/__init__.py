@@ -1,36 +1,34 @@
-from dotenv import load_dotenv
-load_dotenv()
-
 from flask import Flask
 from flask_apscheduler import APScheduler
 from flask_sqlalchemy import SQLAlchemy
 from os import path
 from flask_login import LoginManager
 from flask_moment import Moment
+import re
 import os
 
 db = SQLAlchemy()
+DB_NAME = "database.db"
 scheduler = APScheduler()
 
 def create_app():
     app = Flask(__name__, static_folder='static')
     moment = Moment(app)
     app.config['SECRET_KEY'] = os.getenv('SECRET_KEY', 'dev-key-for-local')
-    
-    # Database configuration
-    app.config['SQLALCHEMY_DATABASE_URI'] = os.getenv('POSTGRES_URL_NON_POOLING')
-    if not app.config['SQLALCHEMY_DATABASE_URI']:
-        app.config['SQLALCHEMY_DATABASE_URI'] = 'sqlite:///database.db'  # Fallback for development
-    app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
-    
+    # Add this custom filter
+    @app.template_filter('regex_replace')
+    def regex_replace(s, find, replace):
+        return re.sub(find, replace, s)
+    app.config['SQLALCHEMY_DATABASE_URI'] = f'sqlite:///{DB_NAME}'
     db.init_app(app)
+
     from .views import views
     from .auth import auth
 
     app.register_blueprint(views, url_prefix='/')
     app.register_blueprint(auth, url_prefix='/')
 
-    from .models import User
+    from .models import User, Note
     
     with app.app_context():
         db.create_all()
@@ -49,6 +47,6 @@ def create_app():
     return app
 
 def create_database(app):
-    if not path.exists('website/database.db'):
+    if not path.exists('website/' + DB_NAME):
         db.create_all(app=app)
         print('Created Database!')
