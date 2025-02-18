@@ -14,6 +14,7 @@ Returns:
 """
 from playwright.sync_api import sync_playwright, TimeoutError as PlaywrightTimeoutError
 import os
+import logging
 from geopy.geocoders import Nominatim
 from datetime import datetime
 import smtplib
@@ -23,12 +24,17 @@ from dotenv import load_dotenv
 from dataclasses import dataclass
 from website.models import ScraperResult, db
 
+logging.basicConfig(level=logging.DEBUG)
+logger = logging.getLogger(__name__)
+
 geolocator = Nominatim(user_agent="FindmyPrize_Flask")
 
 def run_scraper(city, country, product, target_price, should_send_email, user_id=None):
+    logger.info(f"Starting scraper for {product} in {city}, {country}")
     loc = geolocator.geocode(f"{city},{country}")
     my_long = loc.longitude
     my_lat = loc.latitude
+    logger.debug(f"Coordinates found - Latitude: {my_lat}, Longitude: {my_long}")
 
     load_dotenv()
     EMAIL_ADDRESS = os.getenv("EMAIL_ADDRESS")
