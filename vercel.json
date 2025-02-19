@@ -7,7 +7,7 @@
       "config": {
         "maxLambdaSize": "15mb",
         "runtime": "python3.9",
-        "buildCommand": "python -m playwright install chromium && python -m playwright install-deps"
+        "installCommand": "pip install -r requirements.txt && playwright install chromium && playwright install-deps"
       }
     }
   ],
