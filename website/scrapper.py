@@ -1,5 +1,4 @@
 from playwright.sync_api import sync_playwright, TimeoutError as PlaywrightTimeoutError
-import os
 import logging
 from geopy.geocoders import Nominatim
 from datetime import datetime
@@ -7,6 +6,7 @@ import smtplib
 from email.mime.text import MIMEText
 from email.mime.multipart import MIMEMultipart
 from dotenv import load_dotenv
+import os
 from dataclasses import dataclass
 from website.models import ScraperResult, db
 
