@@ -1,17 +1,3 @@
-"""
-Runs a web scraper to search for products on the meinprospekt.de website and logs any deals found.
-
-Args:
-    city (str): The city to search for products in.
-    country (str): The country to search for products in.
-    product (str): The product to search for.
-    target_price (float): The target price for the product.
-    should_send_email (bool): Whether to send an email notification for any deals found.
-    user_id (int, optional): The ID of the user who requested the scraping.
-
-Returns:
-    list: A list of strings representing the output of the scraping process.
-"""
 from playwright.sync_api import sync_playwright, TimeoutError as PlaywrightTimeoutError
 import os
 import logging
@@ -31,18 +17,20 @@ geolocator = Nominatim(user_agent="FindmyPrize_Flask")
 
 def run_scraper(city, country, product, target_price, should_send_email, user_id=None):
     logger.info(f"Starting scraper for {product} in {city}, {country}")
+    
+    # Get location coordinates
     loc = geolocator.geocode(f"{city},{country}")
     my_long = loc.longitude
     my_lat = loc.latitude
     logger.debug(f"Coordinates found - Latitude: {my_lat}, Longitude: {my_long}")
 
+    # Load environment variables
     load_dotenv()
     EMAIL_ADDRESS = os.getenv("EMAIL_ADDRESS")
     EMAIL_PASSWORD = os.getenv("EMAIL_PASSWORD")
     RECIPIENT_EMAIL = os.getenv("RECIPIENT_EMAIL")
 
     def send_email(subject, message, should_send_email):
-        
         if should_send_email:
             sender_email = EMAIL_ADDRESS
             sender_password = EMAIL_PASSWORD
@@ -91,18 +79,14 @@ def run_scraper(city, country, product, target_price, should_send_email, user_id
         return email_content
 
     def log_deal(store, price, product_name, data):
-        # Check if this exact deal already exists in collected_findings
         for finding in collected_findings:
-            if (finding.store == store and 
-                finding.price == price and 
+            if (finding.store == store and finding.price == price and 
                 finding.product_name == product_name):
-                return  # Skip if duplicate
-            
-        # If not duplicate, add to collected_findings
+                return
+
         finding = DealFinding(store, price, product_name)
         collected_findings.append(finding)
-    
-        # Check if result already exists in database
+
         existing_result = ScraperResult.query.filter_by(
             store=store,
             price=price,
@@ -112,7 +96,7 @@ def run_scraper(city, country, product, target_price, should_send_email, user_id
             country=country,
             user_id=user_id
         ).first()
-    
+
         if not existing_result:
             scraper_result = ScraperResult(
                 store=store,
@@ -134,82 +118,76 @@ def run_scraper(city, country, product, target_price, should_send_email, user_id
         name: str
         target_price: float
 
-    PRODUCTS_AND_PRICES = [
-        Product(product, float(target_price))
-    ]
-    
+    PRODUCTS_AND_PRICES = [Product(product, float(target_price))]
     results = []
 
     with sync_playwright() as p:
+        logger.info("Starting Playwright session")
         browser = p.chromium.launch(
             headless=True,
-            args=[
-                '--no-sandbox',
-                '--disable-setuid-sandbox',
-                '--disable-dev-shm-usage',
-                '--disable-gpu',
-                '--single-process'
-            ]
+            args=['--no-sandbox', '--disable-setuid-sandbox', '--disable-dev-shm-usage', 
+                  '--disable-gpu', '--single-process']
         )
-
+        logger.debug("Browser launched successfully")
+        
         page = browser.new_page()
+        logger.debug("New page created")
 
         for item in PRODUCTS_AND_PRICES:
             product = item.name
             target_price = item.target_price
             url = f"https://www.meinprospekt.de/webapp/?query={product}&lat={my_lat}&lng={my_long}"
+            logger.debug(f"Accessing URL: {url}")
 
             try:
                 page.goto(url)
                 page.wait_for_load_state("load", timeout=10000)
-                offer_section = page.wait_for_selector(
-                    ".search-group-grid-content", timeout=10000
-                )
+                offer_section = page.wait_for_selector(".search-group-grid-content", timeout=10000)
+                
                 if not offer_section:
                     output = f"No Product {product} found"
                 else:
-                    products = offer_section.query_selector_all(
-                        ".card.card--offer.slider-preventClick"
-                    )
+                    products = offer_section.query_selector_all(".card.card--offer.slider-preventClick")
                     output = ""
+                    
                     for product_element in products:
                         store_element = product_element.query_selector(".card__subtitle")
-                        price_element = product_element.query_selector(
-                            ".card__prices-main-price"
-                        )
+                        price_element = product_element.query_selector(".card__prices-main-price")
+                        
                         if store_element and price_element:
                             store = store_element.inner_text().strip()
                             price_text = price_element.inner_text().strip()
+                            
                             try:
-                                price_value = float(
-                                    price_text.replace("€", "").replace(",", ".").strip()
-                                )
+                                price_value = float(price_text.replace("€", "").replace(",", ".").strip())
                                 if price_value <= target_price:
-                                    product_name_element = product_element.query_selector(
-                                        ".card__title"
-                                    )
+                                    product_name_element = product_element.query_selector(".card__title")
                                     product_name = product_name_element.inner_text().strip() if product_name_element else "Unknown Product"
-
+                                    
                                     message = f"Deal alert! {store} offers {product_name} for {price_text}! (Target price: €{target_price:.2f})"
                                     log_deal(store, price_value, product_name, message)
                                     output += message + "\n"
                             except ValueError:
-                                print(f"Could not convert price to float: {price_text}")
-            except PlaywrightTimeoutError:
-                print(f"Timeout exceeded for {product}. Moving to the next item.")
+                                logger.error(f"Could not convert price to float: {price_text}")
+                
+                logger.info(output)
+                results.append(output)
+                
+            except PlaywrightTimeoutError as e:
+                logger.error(f"Timeout for {product}: {str(e)}")
+                continue
+            except Exception as e:
+                logger.error(f"Error processing {product}: {str(e)}")
                 continue
 
-            print(output)
-            results.append(output)
         browser.close()
+        logger.info("Browser closed successfully")
 
-    # After collecting all findings, send one consolidated email
     if collected_findings and should_send_email:
         email_content = format_email_content(collected_findings)
         subject = f"Deal Alert Summary - {len(collected_findings)} deals found for {product}!"
         send_email(subject, email_content, should_send_email)
 
-    # Format results for web display
     formatted_results = []
     for finding in collected_findings:
         formatted_deal = {
@@ -221,4 +199,4 @@ def run_scraper(city, country, product, target_price, should_send_email, user_id
         }
         formatted_results.append(formatted_deal)
 
-    return formatted_results   
+    return formatted_results

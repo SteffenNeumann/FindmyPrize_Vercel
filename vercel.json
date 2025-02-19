@@ -3,7 +3,12 @@
   "builds": [
     {
       "src": "main.py",
-      "use": "@vercel/python"
+      "use": "@vercel/python",
+      "config": {
+        "maxLambdaSize": "15mb",
+        "runtime": "python3.9",
+        "buildCommand": "python -m playwright install chromium && python -m playwright install-deps"
+      }
     }
   ],
   "routes": [
@@ -11,5 +16,8 @@
       "src": "/(.*)",
       "dest": "main.py"
     }
-  ]
+  ],
+  "env": {
+    "PLAYWRIGHT_BROWSERS_PATH": "0"
+  }
 }
